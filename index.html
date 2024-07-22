@@ -1,412 +1,497 @@
 <html>
-    <head>
-        <meta charset="utf-8">
-        
-            <script>function neighbourhoodHighlight(params) {
-  // console.log("in nieghbourhoodhighlight");
-  allNodes = nodes.get({ returnType: "Object" });
-  // originalNodes = JSON.parse(JSON.stringify(allNodes));
-  // if something is selected:
-  if (params.nodes.length > 0) {
-    highlightActive = true;
-    var i, j;
-    var selectedNode = params.nodes[0];
-    var degrees = 2;
 
-    // mark all nodes as hard to read.
-    for (let nodeId in allNodes) {
-      // nodeColors[nodeId] = allNodes[nodeId].color;
-      allNodes[nodeId].color = "rgba(200,200,200,0.5)";
-      if (allNodes[nodeId].hiddenLabel === undefined) {
-        allNodes[nodeId].hiddenLabel = allNodes[nodeId].label;
-        allNodes[nodeId].label = undefined;
+<head>
+  <meta charset="utf-8">
+  <script>function neighbourhoodHighlight(params) {
+      // console.log("in nieghbourhoodhighlight");
+      allNodes = nodes.get({ returnType: "Object" });
+      // originalNodes = JSON.parse(JSON.stringify(allNodes));
+      // if something is selected:
+      if (params.nodes.length > 0) {
+        highlightActive = true;
+        var i, j;
+        var selectedNode = params.nodes[0];
+        var degrees = 2;
+
+        // mark all nodes as hard to read.
+        for (let nodeId in allNodes) {
+          // nodeColors[nodeId] = allNodes[nodeId].color;
+          allNodes[nodeId].color = "rgba(200,200,200,0.5)";
+          if (allNodes[nodeId].hiddenLabel === undefined) {
+            allNodes[nodeId].hiddenLabel = allNodes[nodeId].label;
+            allNodes[nodeId].label = undefined;
+          }
+        }
+        var connectedNodes = network.getConnectedNodes(selectedNode);
+        var allConnectedNodes = [];
+
+        // get the second degree nodes
+        for (i = 1; i < degrees; i++) {
+          for (j = 0; j < connectedNodes.length; j++) {
+            allConnectedNodes = allConnectedNodes.concat(
+              network.getConnectedNodes(connectedNodes[j])
+            );
+          }
+        }
+
+        // all second degree nodes get a different color and their label back
+        for (i = 0; i < allConnectedNodes.length; i++) {
+          // allNodes[allConnectedNodes[i]].color = "pink";
+          allNodes[allConnectedNodes[i]].color = "rgba(150,150,150,0.75)";
+          if (allNodes[allConnectedNodes[i]].hiddenLabel !== undefined) {
+            allNodes[allConnectedNodes[i]].label =
+              allNodes[allConnectedNodes[i]].hiddenLabel;
+            allNodes[allConnectedNodes[i]].hiddenLabel = undefined;
+          }
+        }
+
+        // all first degree nodes get their own color and their label back
+        for (i = 0; i < connectedNodes.length; i++) {
+          // allNodes[connectedNodes[i]].color = undefined;
+          allNodes[connectedNodes[i]].color = nodeColors[connectedNodes[i]];
+          if (allNodes[connectedNodes[i]].hiddenLabel !== undefined) {
+            allNodes[connectedNodes[i]].label =
+              allNodes[connectedNodes[i]].hiddenLabel;
+            allNodes[connectedNodes[i]].hiddenLabel = undefined;
+          }
+        }
+
+        // the main node gets its own color and its label back.
+        // allNodes[selectedNode].color = undefined;
+        allNodes[selectedNode].color = nodeColors[selectedNode];
+        if (allNodes[selectedNode].hiddenLabel !== undefined) {
+          allNodes[selectedNode].label = allNodes[selectedNode].hiddenLabel;
+          allNodes[selectedNode].hiddenLabel = undefined;
+        }
+      } else if (highlightActive === true) {
+        // console.log("highlightActive was true");
+        // reset all nodes
+        for (let nodeId in allNodes) {
+          // allNodes[nodeId].color = "purple";
+          allNodes[nodeId].color = nodeColors[nodeId];
+          // delete allNodes[nodeId].color;
+          if (allNodes[nodeId].hiddenLabel !== undefined) {
+            allNodes[nodeId].label = allNodes[nodeId].hiddenLabel;
+            allNodes[nodeId].hiddenLabel = undefined;
+          }
+        }
+        highlightActive = false;
       }
-    }
-    var connectedNodes = network.getConnectedNodes(selectedNode);
-    var allConnectedNodes = [];
 
-    // get the second degree nodes
-    for (i = 1; i < degrees; i++) {
-      for (j = 0; j < connectedNodes.length; j++) {
-        allConnectedNodes = allConnectedNodes.concat(
-          network.getConnectedNodes(connectedNodes[j])
-        );
-      }
-    }
-
-    // all second degree nodes get a different color and their label back
-    for (i = 0; i < allConnectedNodes.length; i++) {
-      // allNodes[allConnectedNodes[i]].color = "pink";
-      allNodes[allConnectedNodes[i]].color = "rgba(150,150,150,0.75)";
-      if (allNodes[allConnectedNodes[i]].hiddenLabel !== undefined) {
-        allNodes[allConnectedNodes[i]].label =
-          allNodes[allConnectedNodes[i]].hiddenLabel;
-        allNodes[allConnectedNodes[i]].hiddenLabel = undefined;
-      }
-    }
-
-    // all first degree nodes get their own color and their label back
-    for (i = 0; i < connectedNodes.length; i++) {
-      // allNodes[connectedNodes[i]].color = undefined;
-      allNodes[connectedNodes[i]].color = nodeColors[connectedNodes[i]];
-      if (allNodes[connectedNodes[i]].hiddenLabel !== undefined) {
-        allNodes[connectedNodes[i]].label =
-          allNodes[connectedNodes[i]].hiddenLabel;
-        allNodes[connectedNodes[i]].hiddenLabel = undefined;
-      }
-    }
-
-    // the main node gets its own color and its label back.
-    // allNodes[selectedNode].color = undefined;
-    allNodes[selectedNode].color = nodeColors[selectedNode];
-    if (allNodes[selectedNode].hiddenLabel !== undefined) {
-      allNodes[selectedNode].label = allNodes[selectedNode].hiddenLabel;
-      allNodes[selectedNode].hiddenLabel = undefined;
-    }
-  } else if (highlightActive === true) {
-    // console.log("highlightActive was true");
-    // reset all nodes
-    for (let nodeId in allNodes) {
-      // allNodes[nodeId].color = "purple";
-      allNodes[nodeId].color = nodeColors[nodeId];
-      // delete allNodes[nodeId].color;
-      if (allNodes[nodeId].hiddenLabel !== undefined) {
-        allNodes[nodeId].label = allNodes[nodeId].hiddenLabel;
-        allNodes[nodeId].hiddenLabel = undefined;
-      }
-    }
-    highlightActive = false;
-  }
-
-  // transform the object into an array
-  var updateArray = [];
-  if (params.nodes.length > 0) {
-    for (let nodeId in allNodes) {
-      if (allNodes.hasOwnProperty(nodeId)) {
-        // console.log(allNodes[nodeId]);
-        updateArray.push(allNodes[nodeId]);
-      }
-    }
-    nodes.update(updateArray);
-  } else {
-    // console.log("Nothing was selected");
-    for (let nodeId in allNodes) {
-      if (allNodes.hasOwnProperty(nodeId)) {
-        // console.log(allNodes[nodeId]);
-        // allNodes[nodeId].color = {};
-        updateArray.push(allNodes[nodeId]);
-      }
-    }
-    nodes.update(updateArray);
-  }
-}
-
-function filterHighlight(params) {
-  allNodes = nodes.get({ returnType: "Object" });
-  // if something is selected:
-  if (params.nodes.length > 0) {
-    filterActive = true;
-    let selectedNodes = params.nodes;
-
-    // hiding all nodes and saving the label
-    for (let nodeId in allNodes) {
-      allNodes[nodeId].hidden = true;
-      if (allNodes[nodeId].savedLabel === undefined) {
-        allNodes[nodeId].savedLabel = allNodes[nodeId].label;
-        allNodes[nodeId].label = undefined;
+      // transform the object into an array
+      var updateArray = [];
+      if (params.nodes.length > 0) {
+        for (let nodeId in allNodes) {
+          if (allNodes.hasOwnProperty(nodeId)) {
+            // console.log(allNodes[nodeId]);
+            updateArray.push(allNodes[nodeId]);
+          }
+        }
+        nodes.update(updateArray);
+      } else {
+        // console.log("Nothing was selected");
+        for (let nodeId in allNodes) {
+          if (allNodes.hasOwnProperty(nodeId)) {
+            // console.log(allNodes[nodeId]);
+            // allNodes[nodeId].color = {};
+            updateArray.push(allNodes[nodeId]);
+          }
+        }
+        nodes.update(updateArray);
       }
     }
 
-    for (let i=0; i < selectedNodes.length; i++) {
-      allNodes[selectedNodes[i]].hidden = false;
-      if (allNodes[selectedNodes[i]].savedLabel !== undefined) {
-        allNodes[selectedNodes[i]].label = allNodes[selectedNodes[i]].savedLabel;
-        allNodes[selectedNodes[i]].savedLabel = undefined;
+    function filterHighlight(params) {
+      allNodes = nodes.get({ returnType: "Object" });
+      // if something is selected:
+      if (params.nodes.length > 0) {
+        filterActive = true;
+        let selectedNodes = params.nodes;
+
+        // hiding all nodes and saving the label
+        for (let nodeId in allNodes) {
+          allNodes[nodeId].hidden = true;
+          if (allNodes[nodeId].savedLabel === undefined) {
+            allNodes[nodeId].savedLabel = allNodes[nodeId].label;
+            allNodes[nodeId].label = undefined;
+          }
+        }
+
+        for (let i = 0; i < selectedNodes.length; i++) {
+          allNodes[selectedNodes[i]].hidden = false;
+          if (allNodes[selectedNodes[i]].savedLabel !== undefined) {
+            allNodes[selectedNodes[i]].label = allNodes[selectedNodes[i]].savedLabel;
+            allNodes[selectedNodes[i]].savedLabel = undefined;
+          }
+        }
+
+      } else if (filterActive === true) {
+        // reset all nodes
+        for (let nodeId in allNodes) {
+          allNodes[nodeId].hidden = false;
+          if (allNodes[nodeId].savedLabel !== undefined) {
+            allNodes[nodeId].label = allNodes[nodeId].savedLabel;
+            allNodes[nodeId].savedLabel = undefined;
+          }
+        }
+        filterActive = false;
+      }
+
+      // transform the object into an array
+      var updateArray = [];
+      if (params.nodes.length > 0) {
+        for (let nodeId in allNodes) {
+          if (allNodes.hasOwnProperty(nodeId)) {
+            updateArray.push(allNodes[nodeId]);
+          }
+        }
+        nodes.update(updateArray);
+      } else {
+        for (let nodeId in allNodes) {
+          if (allNodes.hasOwnProperty(nodeId)) {
+            updateArray.push(allNodes[nodeId]);
+          }
+        }
+        nodes.update(updateArray);
       }
     }
 
-  } else if (filterActive === true) {
-    // reset all nodes
-    for (let nodeId in allNodes) {
-      allNodes[nodeId].hidden = false;
-      if (allNodes[nodeId].savedLabel !== undefined) {
-        allNodes[nodeId].label = allNodes[nodeId].savedLabel;
-        allNodes[nodeId].savedLabel = undefined;
-      }
+    function selectNode(nodes) {
+      network.selectNodes(nodes);
+      neighbourhoodHighlight({ nodes: nodes });
+      return nodes;
     }
-    filterActive = false;
-  }
 
-  // transform the object into an array
-  var updateArray = [];
-  if (params.nodes.length > 0) {
-    for (let nodeId in allNodes) {
-      if (allNodes.hasOwnProperty(nodeId)) {
-        updateArray.push(allNodes[nodeId]);
-      }
+    function selectNodes(nodes) {
+      network.selectNodes(nodes);
+      filterHighlight({ nodes: nodes });
+      return nodes;
     }
-    nodes.update(updateArray);
-  } else {
-    for (let nodeId in allNodes) {
-      if (allNodes.hasOwnProperty(nodeId)) {
-        updateArray.push(allNodes[nodeId]);
+
+    function highlightFilter(filter) {
+      let selectedNodes = []
+      let selectedProp = filter['property']
+      if (filter['item'] === 'node') {
+        let allNodes = nodes.get({ returnType: "Object" });
+        for (let nodeId in allNodes) {
+          if (allNodes[nodeId][selectedProp] && filter['value'].includes((allNodes[nodeId][selectedProp]).toString())) {
+            selectedNodes.push(nodeId)
+          }
+        }
       }
-    }
-    nodes.update(updateArray);
-  }
-}
-
-function selectNode(nodes) {
-  network.selectNodes(nodes);
-  neighbourhoodHighlight({ nodes: nodes });
-  return nodes;
-}
-
-function selectNodes(nodes) {
-  network.selectNodes(nodes);
-  filterHighlight({nodes: nodes});
-  return nodes;
-}
-
-function highlightFilter(filter) {
-  let selectedNodes = []
-  let selectedProp = filter['property']
-  if (filter['item'] === 'node') {
-    let allNodes = nodes.get({ returnType: "Object" });
-    for (let nodeId in allNodes) {
-      if (allNodes[nodeId][selectedProp] && filter['value'].includes((allNodes[nodeId][selectedProp]).toString())) {
-        selectedNodes.push(nodeId)
+      else if (filter['item'] === 'edge') {
+        let allEdges = edges.get({ returnType: 'object' });
+        // check if the selected property exists for selected edge and select the nodes connected to the edge
+        for (let edge in allEdges) {
+          if (allEdges[edge][selectedProp] && filter['value'].includes((allEdges[edge][selectedProp]).toString())) {
+            selectedNodes.push(allEdges[edge]['from'])
+            selectedNodes.push(allEdges[edge]['to'])
+          }
+        }
       }
+      selectNodes(selectedNodes)
+    }</script>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/vis-network/9.1.2/dist/dist/vis-network.min.css"
+    integrity="sha512-WgxfT5LWjfszlPHXRmBWHkV2eceiWTOBvrKCNbdgDYTHrT2AeLCGbF4sZlZw3UMN3WtL0tGUoIAKsu8mllg/XA=="
+    crossorigin="anonymous" referrerpolicy="no-referrer" />
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/vis-network/9.1.2/dist/vis-network.min.js"
+    integrity="sha512-LnvoEWDFrqGHlHmDD2101OrLcbsfkrzoSpvtSQtxK3RMnRV0eOkhhBN2dXHKRrUU8p2DGRTk35n4O8nWSVe1mQ=="
+    crossorigin="anonymous" referrerpolicy="no-referrer"></script>
+  <center>
+    <h1>Social Network Analysis of INCODE Members</h1>
+  </center>
+
+  <!-- <link rel="stylesheet" href="../node_modules/vis/dist/vis.min.css" type="text/css" />
+  <script type="text/javascript" src="../node_modules/vis/dist/vis.js"> </script>-->
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.0.0-beta3/dist/css/bootstrap.min.css" rel="stylesheet"
+    integrity="sha384-eOJMYsd53ii+scO/bJGFsiCZc+5NDVN2yr8+0RDqr0Ql0h+rP48ckxlpbzKgwra6" crossorigin="anonymous" />
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.0.0-beta3/dist/js/bootstrap.bundle.min.js"
+    integrity="sha384-JEW9xMcG8R+pH31jmWH6WWP0WintQrMb4s7ZOdauHnUtxwoG2vI5DkLtS3qm9Ekf"
+    crossorigin="anonymous"></script>
+
+  <!-- 
+        <center>
+          <h1>Social Network Analysis Anggota INCODE</h1>
+        </center> -->
+  <style type="text/css">
+    #mynetwork {
+      width: 100%;
+      height: 600px;
+      background-color: #ffffff;
+      border: 1px solid lightgray;
+      position: relative;
+      float: left;
     }
-  }
-  else if (filter['item'] === 'edge'){
-    let allEdges = edges.get({returnType: 'object'});
-    // check if the selected property exists for selected edge and select the nodes connected to the edge
-    for (let edge in allEdges) {
-      if (allEdges[edge][selectedProp] && filter['value'].includes((allEdges[edge][selectedProp]).toString())) {
-        selectedNodes.push(allEdges[edge]['from'])
-        selectedNodes.push(allEdges[edge]['to'])
+
+
+    #loadingBar {
+      position: absolute;
+      top: 0px;
+      left: 0px;
+      width: 100%;
+      height: 600px;
+      background-color: rgba(200, 200, 200, 0.8);
+      -webkit-transition: all 0.5s ease;
+      -moz-transition: all 0.5s ease;
+      -ms-transition: all 0.5s ease;
+      -o-transition: all 0.5s ease;
+      transition: all 0.5s ease;
+      opacity: 1;
+    }
+
+    #bar {
+      position: absolute;
+      top: 0px;
+      left: 0px;
+      width: 20px;
+      height: 20px;
+      margin: auto auto auto auto;
+      border-radius: 11px;
+      border: 2px solid rgba(30, 30, 30, 0.05);
+      background: rgb(0, 173, 246);
+      /* Old browsers */
+      box-shadow: 2px 0px 4px rgba(0, 0, 0, 0.4);
+    }
+
+    #border {
+      position: absolute;
+      top: 10px;
+      left: 10px;
+      width: 500px;
+      height: 23px;
+      margin: auto auto auto auto;
+      box-shadow: 0px 0px 4px rgba(0, 0, 0, 0.2);
+      border-radius: 10px;
+    }
+
+    #text {
+      position: absolute;
+      top: 8px;
+      left: 530px;
+      width: 30px;
+      height: 50px;
+      margin: auto auto auto auto;
+      font-size: 22px;
+      color: #000000;
+    }
+
+    div.outerBorder {
+      position: relative;
+      top: 400px;
+      width: 600px;
+      height: 44px;
+      margin: auto auto auto auto;
+      border: 8px solid rgba(0, 0, 0, 0.1);
+      background: rgb(252, 252, 252);
+      /* Old browsers */
+      background: -moz-linear-gradient(top, rgba(252, 252, 252, 1) 0%, rgba(237, 237, 237, 1) 100%);
+      /* FF3.6+ */
+      background: -webkit-gradient(linear, left top, left bottom, color-stop(0%, rgba(252, 252, 252, 1)), color-stop(100%, rgba(237, 237, 237, 1)));
+      /* Chrome,Safari4+ */
+      background: -webkit-linear-gradient(top, rgba(252, 252, 252, 1) 0%, rgba(237, 237, 237, 1) 100%);
+      /* Chrome10+,Safari5.1+ */
+      background: -o-linear-gradient(top, rgba(252, 252, 252, 1) 0%, rgba(237, 237, 237, 1) 100%);
+      /* Opera 11.10+ */
+      background: -ms-linear-gradient(top, rgba(252, 252, 252, 1) 0%, rgba(237, 237, 237, 1) 100%);
+      /* IE10+ */
+      background: linear-gradient(to bottom, rgba(252, 252, 252, 1) 0%, rgba(237, 237, 237, 1) 100%);
+      /* W3C */
+      filter: progid:DXImageTransform.Microsoft.gradient(startColorstr='#fcfcfc', endColorstr='#ededed', GradientType=0);
+      /* IE6-9 */
+      border-radius: 72px;
+      box-shadow: 0px 0px 10px rgba(0, 0, 0, 0.2);
+    }
+
+    .legend-item {
+      display: flex;
+      align-items: center;
+      margin-bottom: 5px;
+    }
+
+    .legend-color {
+      width: 15px;
+      height: 15px;
+      margin-right: 10px;
+      border: 1px solid #ccc;
+    }
+  </style>
+</head>
+
+<body>
+  <!-- <div id="legend"
+    style="padding: 10px; background: #fff; border: 1px solid #ccc; border-radius: 4px; position: absolute; top: 60px; left: 15px; z-index: 9999;">
+    <h3>List Sirkel</h3>
+    <div class="legend-item" style="display: flex; align-items: center; margin-bottom: 5px;">
+      <div class="legend-color"
+        style="width: 15px; height: 15px; margin-right: 10px; background: #1f77b4; border: 1px solid #ccc;"></div>
+      Sirkel 1
+    </div>
+    <div class="legend-item" style="display: flex; align-items: center; margin-bottom: 5px;">
+      <div class="legend-color"
+        style="width: 15px; height: 15px; margin-right: 10px; background: #aec7e8; border: 1px solid #ccc;"></div>
+      Sirkel 2
+    </div>
+    <div class="legend-item" style="display: flex; align-items: center; margin-bottom: 5px;">
+      <div class="legend-color"
+        style="width: 15px; height: 15px; margin-right: 10px; background: #ff7f0e; border: 1px solid #ccc;"></div>
+      Sirkel 3
+    </div>
+    <div class="legend-item" style="display: flex; align-items: center; margin-bottom: 5px;">
+      <div class="legend-color"
+        style="width: 15px; height: 15px; margin-right: 10px; background: #ffbb78; border: 1px solid #ccc;"></div>
+      Sirkel 4
+    </div>
+    <div class="legend-item" style="display: flex; align-items: center; margin-bottom: 5px;">
+      <div class="legend-color"
+        style="width: 15px; height: 15px; margin-right: 10px; background: #2ca02c; border: 1px solid #ccc;"></div>
+      Sirkel 5
+    </div>
+    <div class="legend-item" style="display: flex; align-items: center; margin-bottom: 5px;">
+      <div class="legend-color"
+        style="width: 15px; height: 15px; margin-right: 10px; background: #98df8a; border: 1px solid #ccc;"></div>
+      Sirkel 6
+    </div>
+    <div class="legend-item" style="display: flex; align-items: center; margin-bottom: 5px;">
+      <div class="legend-color"
+        style="width: 15px; height: 15px; margin-right: 10px; background: #d62728; border: 1px solid #ccc;"></div>
+      Sirkel 7
+    </div>
+    <div class="legend-item" style="display: flex; align-items: center; margin-bottom: 5px;">
+      <div class="legend-color"
+        style="width: 15px; height: 15px; margin-right: 10px; background: #ff9896; border: 1px solid #ccc;"></div>
+      Sirkel 8
+    </div>
+    <div class="legend-item" style="display: flex; align-items: center; margin-bottom: 5px;">
+      <div class="legend-color"
+        style="width: 15px; height: 15px; margin-right: 10px; background: #9467bd; border: 1px solid #ccc;"></div>
+      Sirkel 9
+    </div>
+    <div class="legend-item" style="display: flex; align-items: center; margin-bottom: 5px;">
+      <div class="legend-color"
+        style="width: 15px; height: 15px; margin-right: 10px; background: #c5b0d5; border: 1px solid #ccc;"></div>
+      Sirkel 10
+    </div>
+    <div class="legend-item" style="display: flex; align-items: center; margin-bottom: 5px;">
+      <div class="legend-color"
+        style="width: 15px; height: 15px; margin-right: 10px; background: #8c564b; border: 1px solid #ccc;"></div>
+      Sirkel 11
+    </div>
+    <div class="legend-item" style="display: flex; align-items: center; margin-bottom: 5px;">
+      <div class="legend-color"
+        style="width: 15px; height: 15px; margin-right: 10px; background: #c49c94; border: 1px solid #ccc;"></div>
+      Sirkel 12
+    </div>
+    <div class="legend-item" style="display: flex; align-items: center; margin-bottom: 5px;">
+      <div class="legend-color"
+        style="width: 15px; height: 15px; margin-right: 10px; background: #e377c2; border: 1px solid #ccc;"></div>
+      Sirkel 13
+    </div>
+  </div> -->
+  <div class="card" style="width: 100%">
+    <div id="mynetwork" class="card-body"></div>
+  </div>
+  <div id="loadingBar">
+    <div class="outerBorder">
+      <div id="text">0%</div>
+      <div id="border">
+        <div id="bar"></div>
+      </div>
+    </div>
+  </div>
+  <div id="legend"></div>
+  <script type="text/javascript">
+    // initialize global variables.
+    var edges;
+    var nodes;
+    var allNodes;
+    var allEdges;
+    var nodeColors;
+    var originalNodes;
+    var network;
+    var container;
+    var options, data;
+    var filter = {
+      item: '',
+      property: '',
+      value: []
+    };
+    // This method is responsible for drawing the graph, returns the drawn network
+    function drawGraph() {
+      var container = document.getElementById('mynetwork');
+      // parsing and collecting nodes and edges from the python
+      nodes = new vis.DataSet([{ "color": "#1f77b4", "id": "Widiya", "label": "Widiya", "shape": "dot" }, { "color": "#1f77b4", "id": "Malik", "label": "Malik", "shape": "dot" }, { "color": "#1f77b4", "id": "Adi Sahrul", "label": "Adi Sahrul", "shape": "dot" }, { "color": "#1f77b4", "id": "Ali", "label": "Ali", "shape": "dot" }, { "color": "#aec7e8", "id": "Zakaria", "label": "Zakaria", "shape": "dot" }, { "color": "#aec7e8", "id": "Sabil", "label": "Sabil", "shape": "dot" }, { "color": "#aec7e8", "id": "Hanafi", "label": "Hanafi", "shape": "dot" }, { "color": "#aec7e8", "id": "Faqih", "label": "Faqih", "shape": "dot" }, { "color": "#ff7f0e", "id": "Ilham", "label": "Ilham", "shape": "dot" }, { "color": "#ff7f0e", "id": "Mahreza", "label": "Mahreza", "shape": "dot" }, { "color": "#ffbb78", "id": "Firmansyah", "label": "Firmansyah", "shape": "dot" }, { "color": "#ff7f0e", "id": "Hendra", "label": "Hendra", "shape": "dot" }, { "color": "#2ca02c", "id": "Ronggo", "label": "Ronggo", "shape": "dot" }, { "color": "#2ca02c", "id": "Akhyar", "label": "Akhyar", "shape": "dot" }, { "color": "#2ca02c", "id": "Agus", "label": "Agus", "shape": "dot" }, { "color": "#ff7f0e", "id": "Habiburrochman", "label": "Habiburrochman", "shape": "dot" }, { "color": "#ff7f0e", "id": "Anam", "label": "Anam", "shape": "dot" }, { "color": "#ff7f0e", "id": "Mishbahus", "label": "Mishbahus", "shape": "dot" }, { "color": "#aec7e8", "id": "Wafda", "label": "Wafda", "shape": "dot" }, { "color": "#aec7e8", "id": "Faisal", "label": "Faisal", "shape": "dot" }, { "color": "#98df8a", "id": "Bagus", "label": "Bagus", "shape": "dot" }, { "color": "#98df8a", "id": "Glendy", "label": "Glendy", "shape": "dot" }, { "color": "#98df8a", "id": "Andre Eka", "label": "Andre Eka", "shape": "dot" }, { "color": "#98df8a", "id": "Naufal", "label": "Naufal", "shape": "dot" }, { "color": "#d62728", "id": "Hera", "label": "Hera", "shape": "dot" }, { "color": "#2ca02c", "id": "Dimas", "label": "Dimas", "shape": "dot" }, { "color": "#2ca02c", "id": "Alivian", "label": "Alivian", "shape": "dot" }, { "color": "#2ca02c", "id": "Ariek", "label": "Ariek", "shape": "dot" }, { "color": "#ff9896", "id": "Wahyu Cahyanto", "label": "Wahyu Cahyanto", "shape": "dot" }, { "color": "#9467bd", "id": "Ramadani", "label": "Ramadani", "shape": "dot" }, { "color": "#9467bd", "id": "Evi", "label": "Evi", "shape": "dot" }, { "color": "#9467bd", "id": "Erwin", "label": "Erwin", "shape": "dot" }, { "color": "#ff9896", "id": "Adi Prawono", "label": "Adi Prawono", "shape": "dot" }, { "color": "#ffbb78", "id": "Izzul", "label": "Izzul", "shape": "dot" }, { "color": "#ffbb78", "id": "Frederico", "label": "Frederico", "shape": "dot" }, { "color": "#ffbb78", "id": "Yusron", "label": "Yusron", "shape": "dot" }, { "color": "#ffbb78", "id": "Rafiq", "label": "Rafiq", "shape": "dot" }, { "color": "#c5b0d5", "id": "Ramadika", "label": "Ramadika", "shape": "dot" }, { "color": "#c5b0d5", "id": "Anandya", "label": "Anandya", "shape": "dot" }, { "color": "#c5b0d5", "id": "Hafidz", "label": "Hafidz", "shape": "dot" }, { "color": "#9467bd", "id": "Reza", "label": "Reza", "shape": "dot" }, { "color": "#9467bd", "id": "Rizal", "label": "Rizal", "shape": "dot" }, { "color": "#9467bd", "id": "Rosi", "label": "Rosi", "shape": "dot" }, { "color": "#9467bd", "id": "Adi Rahman", "label": "Adi Rahman", "shape": "dot" }, { "color": "#ff9896", "id": "Akbar", "label": "Akbar", "shape": "dot" }, { "color": "#ff9896", "id": "Fais", "label": "Fais", "shape": "dot" }, { "color": "#98df8a", "id": "Umar", "label": "Umar", "shape": "dot" }, { "color": "#9467bd", "id": "Adri", "label": "Adri", "shape": "dot" }, { "color": "#9467bd", "id": "Azis Alfajar", "label": "Azis Alfajar", "shape": "dot" }, { "color": "#8c564b", "id": "Tofan", "label": "Tofan", "shape": "dot" }, { "color": "#8c564b", "id": "Surya", "label": "Surya", "shape": "dot" }, { "color": "#8c564b", "id": "Nico", "label": "Nico", "shape": "dot" }, { "color": "#8c564b", "id": "Jizdan", "label": "Jizdan", "shape": "dot" }, { "color": "#ff7f0e", "id": "Bagas", "label": "Bagas", "shape": "dot" }, { "color": "#ff9896", "id": "Dila", "label": "Dila", "shape": "dot" }, { "color": "#ff9896", "id": "Ivada", "label": "Ivada", "shape": "dot" }, { "color": "#ff9896", "id": "Riskina", "label": "Riskina", "shape": "dot" }, { "color": "#d62728", "id": "Andi", "label": "Andi", "shape": "dot" }, { "color": "#d62728", "id": "Aldy", "label": "Aldy", "shape": "dot" }, { "color": "#c5b0d5", "id": "Windi", "label": "Windi", "shape": "dot" }, { "color": "#c5b0d5", "id": "Putri", "label": "Putri", "shape": "dot" }, { "color": "#c5b0d5", "id": "Febri", "label": "Febri", "shape": "dot" }, { "color": "#c5b0d5", "id": "Natun", "label": "Natun", "shape": "dot" }, { "color": "#8c564b", "id": "Ali Ridho", "label": "Ali Ridho", "shape": "dot" }, { "color": "#ff9896", "id": "Rizky", "label": "Rizky", "shape": "dot" }, { "color": "#98df8a", "id": "Fahmi", "label": "Fahmi", "shape": "dot" }, { "color": "#ffbb78", "id": "Irfan", "label": "Irfan", "shape": "dot" }, { "color": "#ffbb78", "id": "Rizka", "label": "Rizka", "shape": "dot" }, { "color": "#ffbb78", "id": "Noval", "label": "Noval", "shape": "dot" }, { "color": "#d62728", "id": "Niken", "label": "Niken", "shape": "dot" }, { "color": "#ffbb78", "id": "Yusuf", "label": "Yusuf", "shape": "dot" }, { "color": "#ffbb78", "id": "Ikbar", "label": "Ikbar", "shape": "dot" }, { "color": "#ffbb78", "id": "Abid", "label": "Abid", "shape": "dot" }, { "color": "#98df8a", "id": "Yunus", "label": "Yunus", "shape": "dot" }, { "color": "#98df8a", "id": "Abdillah", "label": "Abdillah", "shape": "dot" }, { "color": "#98df8a", "id": "Rifqi", "label": "Rifqi", "shape": "dot" }, { "color": "#1f77b4", "id": "Vania", "label": "Vania", "shape": "dot" }, { "color": "#c49c94", "id": "Melly", "label": "Melly", "shape": "dot" }, { "color": "#1f77b4", "id": "Revika", "label": "Revika", "shape": "dot" }, { "color": "#1f77b4", "id": "Devi", "label": "Devi", "shape": "dot" }, { "color": "#98df8a", "id": "Satya", "label": "Satya", "shape": "dot" }, { "color": "#98df8a", "id": "Farhan", "label": "Farhan", "shape": "dot" }, { "color": "#c49c94", "id": "Fendi", "label": "Fendi", "shape": "dot" }, { "color": "#ffbb78", "id": "Rere", "label": "Rere", "shape": "dot" }, { "color": "#aec7e8", "id": "Farish", "label": "Farish", "shape": "dot" }, { "color": "#ff9896", "id": "Yasmien", "label": "Yasmien", "shape": "dot" }, { "color": "#ff9896", "id": "Zulfa", "label": "Zulfa", "shape": "dot" }, { "color": "#aec7e8", "id": "Lydia", "label": "Lydia", "shape": "dot" }, { "color": "#aec7e8", "id": "Arul", "label": "Arul", "shape": "dot" }, { "color": "#aec7e8", "id": "Alifah", "label": "Alifah", "shape": "dot" }, { "color": "#1f77b4", "id": "Tasya", "label": "Tasya", "shape": "dot" }, { "color": "#e377c2", "id": "Wahyu Rohmatul", "label": "Wahyu Rohmatul", "shape": "dot" }, { "color": "#e377c2", "id": "Aan", "label": "Aan", "shape": "dot" }, { "color": "#e377c2", "id": "Holis", "label": "Holis", "shape": "dot" }, { "color": "#e377c2", "id": "Lufthanza", "label": "Lufthanza", "shape": "dot" }, { "color": "#ffbb78", "id": "Bima", "label": "Bima", "shape": "dot" }, { "color": "#ff9896", "id": "Ilyas", "label": "Ilyas", "shape": "dot" }, { "color": "#2ca02c", "id": "Febrianu", "label": "Febrianu", "shape": "dot" }, { "color": "#ff9896", "id": "Winda", "label": "Winda", "shape": "dot" }, { "color": "#2ca02c", "id": "Arifin", "label": "Arifin", "shape": "dot" }, { "color": "#2ca02c", "id": "Andreas", "label": "Andreas", "shape": "dot" }, { "color": "#c5b0d5", "id": "Balqis", "label": "Balqis", "shape": "dot" }, { "color": "#ff7f0e", "id": "Nabhan", "label": "Nabhan", "shape": "dot" }, { "color": "#2ca02c", "id": "Fedi", "label": "Fedi", "shape": "dot" }, { "color": "#2ca02c", "id": "Nadhif", "label": "Nadhif", "shape": "dot" }, { "color": "#2ca02c", "id": "Wildan", "label": "Wildan", "shape": "dot" }, { "color": "#98df8a", "id": "Vemas", "label": "Vemas", "shape": "dot" }, { "color": "#ff9896", "id": "Willy", "label": "Willy", "shape": "dot" }, { "color": "#aec7e8", "id": "Yudha", "label": "Yudha", "shape": "dot" }, { "color": "#c49c94", "id": "Auliya", "label": "Auliya", "shape": "dot" }, { "color": "#c49c94", "id": "Febi", "label": "Febi", "shape": "dot" }, { "color": "#d62728", "id": "Lia", "label": "Lia", "shape": "dot" }, { "color": "#98df8a", "id": "Syaiful Ramadani", "label": "Syaiful Ramadani", "shape": "dot" }, { "color": "#2ca02c", "id": "Rosyid", "label": "Rosyid", "shape": "dot" }, { "color": "#d62728", "id": "Cici", "label": "Cici", "shape": "dot" }, { "color": "#d62728", "id": "Ahya", "label": "Ahya", "shape": "dot" }, { "color": "#d62728", "id": "Ami", "label": "Ami", "shape": "dot" }, { "color": "#c49c94", "id": "Fentry", "label": "Fentry", "shape": "dot" }, { "color": "#c49c94", "id": "Lisda", "label": "Lisda", "shape": "dot" }, { "color": "#c49c94", "id": "Juan", "label": "Juan", "shape": "dot" }, { "color": "#aec7e8", "id": "Oktaveian", "label": "Oktaveian", "shape": "dot" }, { "color": "#c49c94", "id": "Zarkasyi", "label": "Zarkasyi", "shape": "dot" }, { "color": "#c49c94", "id": "Samsul", "label": "Samsul", "shape": "dot" }, { "color": "#c49c94", "id": "Bintang", "label": "Bintang", "shape": "dot" }, { "color": "#c5b0d5", "id": "Helmia", "label": "Helmia", "shape": "dot" }, { "color": "#c5b0d5", "id": "Vicky", "label": "Vicky", "shape": "dot" }, { "color": "#9467bd", "id": "Billy", "label": "Billy", "shape": "dot" }, { "color": "#8c564b", "id": "Shafy", "label": "Shafy", "shape": "dot" }, { "color": "#c49c94", "id": "Elisa", "label": "Elisa", "shape": "dot" }, { "color": "#c49c94", "id": "Khalisa", "label": "Khalisa", "shape": "dot" }, { "color": "#1f77b4", "id": "Hamizan", "label": "Hamizan", "shape": "dot" }, { "color": "#d62728", "id": "Nadiah", "label": "Nadiah", "shape": "dot" }, { "color": "#ffbb78", "id": "Iqbil", "label": "Iqbil", "shape": "dot" }, { "color": "#ffbb78", "id": "Yogi", "label": "Yogi", "shape": "dot" }, { "color": "#8c564b", "id": "Ulum", "label": "Ulum", "shape": "dot" }, { "color": "#d62728", "id": "Dina", "label": "Dina", "shape": "dot" }, { "color": "#d62728", "id": "Rara", "label": "Rara", "shape": "dot" }, { "color": "#1f77b4", "id": "Rissa", "label": "Rissa", "shape": "dot" }, { "color": "#1f77b4", "id": "Ning", "label": "Ning", "shape": "dot" }, { "color": "#8c564b", "id": "Fajar", "label": "Fajar", "shape": "dot" }, { "color": "#8c564b", "id": "Fahmi Fahrizi", "label": "Fahmi Fahrizi", "shape": "dot" }, { "color": "#8c564b", "id": "Danuarta", "label": "Danuarta", "shape": "dot" }, { "color": "#9467bd", "id": "Abi", "label": "Abi", "shape": "dot" }, { "color": "#9467bd", "id": "Erlangga", "label": "Erlangga", "shape": "dot" }, { "color": "#9467bd", "id": "Valent", "label": "Valent", "shape": "dot" }, { "color": "#9467bd", "id": "Desi", "label": "Desi", "shape": "dot" }, { "color": "#9467bd", "id": "Olifia", "label": "Olifia", "shape": "dot" }]);
+      edges = new vis.DataSet([{ "arrows": "to", "from": "Widiya", "to": "Malik" }, { "arrows": "to", "from": "Widiya", "to": "Adi Sahrul" }, { "arrows": "to", "from": "Widiya", "to": "Ali" }, { "arrows": "to", "from": "Zakaria", "to": "Sabil" }, { "arrows": "to", "from": "Zakaria", "to": "Hanafi" }, { "arrows": "to", "from": "Zakaria", "to": "Faqih" }, { "arrows": "to", "from": "Ilham", "to": "Mahreza" }, { "arrows": "to", "from": "Ilham", "to": "Firmansyah" }, { "arrows": "to", "from": "Ilham", "to": "Hendra" }, { "arrows": "to", "from": "Ronggo", "to": "Akhyar" }, { "arrows": "to", "from": "Ronggo", "to": "Sabil" }, { "arrows": "to", "from": "Ronggo", "to": "Agus" }, { "arrows": "to", "from": "Habiburrochman", "to": "Anam" }, { "arrows": "to", "from": "Habiburrochman", "to": "Mishbahus" }, { "arrows": "to", "from": "Habiburrochman", "to": "Hendra" }, { "arrows": "to", "from": "Wafda", "to": "Faisal" }, { "arrows": "to", "from": "Wafda", "to": "Mishbahus" }, { "arrows": "to", "from": "Wafda", "to": "Hendra" }, { "arrows": "to", "from": "Bagus", "to": "Glendy" }, { "arrows": "to", "from": "Bagus", "to": "Andre Eka" }, { "arrows": "to", "from": "Bagus", "to": "Naufal" }, { "arrows": "to", "from": "Hera", "to": "Dimas" }, { "arrows": "to", "from": "Agus", "to": "Akhyar" }, { "arrows": "to", "from": "Agus", "to": "Ronggo" }, { "arrows": "to", "from": "Agus", "to": "Alivian" }, { "arrows": "to", "from": "Agus", "to": "Ariek" }, { "arrows": "to", "from": "Akhyar", "to": "Agus" }, { "arrows": "to", "from": "Akhyar", "to": "Ronggo" }, { "arrows": "to", "from": "Akhyar", "to": "Wahyu Cahyanto" }, { "arrows": "to", "from": "Ramadani", "to": "Evi" }, { "arrows": "to", "from": "Ramadani", "to": "Erwin" }, { "arrows": "to", "from": "Ramadani", "to": "Adi Prawono" }, { "arrows": "to", "from": "Izzul", "to": "Frederico" }, { "arrows": "to", "from": "Izzul", "to": "Yusron" }, { "arrows": "to", "from": "Izzul", "to": "Rafiq" }, { "arrows": "to", "from": "Ramadika", "to": "Anandya" }, { "arrows": "to", "from": "Ramadika", "to": "Hafidz" }, { "arrows": "to", "from": "Reza", "to": "Rizal" }, { "arrows": "to", "from": "Reza", "to": "Rosi" }, { "arrows": "to", "from": "Reza", "to": "Adi Rahman" }, { "arrows": "to", "from": "Akbar", "to": "Fais" }, { "arrows": "to", "from": "Andre Eka", "to": "Bagus" }, { "arrows": "to", "from": "Andre Eka", "to": "Glendy" }, { "arrows": "to", "from": "Andre Eka", "to": "Umar" }, { "arrows": "to", "from": "Rosi", "to": "Adi Rahman" }, { "arrows": "to", "from": "Rosi", "to": "Adri" }, { "arrows": "to", "from": "Rosi", "to": "Ramadani" }, { "arrows": "to", "from": "Rosi", "to": "Azis Alfajar" }, { "arrows": "to", "from": "Rosi", "to": "Rizal" }, { "arrows": "to", "from": "Tofan", "to": "Surya" }, { "arrows": "to", "from": "Tofan", "to": "Nico" }, { "arrows": "to", "from": "Tofan", "to": "Jizdan" }, { "arrows": "to", "from": "Hendra", "to": "Mishbahus" }, { "arrows": "to", "from": "Hendra", "to": "Bagas" }, { "arrows": "to", "from": "Hendra", "to": "Habiburrochman" }, { "arrows": "to", "from": "Anam", "to": "Habiburrochman" }, { "arrows": "to", "from": "Anam", "to": "Bagas" }, { "arrows": "to", "from": "Anam", "to": "Mishbahus" }, { "arrows": "to", "from": "Dila", "to": "Ivada" }, { "arrows": "to", "from": "Dila", "to": "Riskina" }, { "arrows": "to", "from": "Andi", "to": "Aldy" }, { "arrows": "to", "from": "Andi", "to": "Habiburrochman" }, { "arrows": "to", "from": "Umar", "to": "Bagus" }, { "arrows": "to", "from": "Umar", "to": "Glendy" }, { "arrows": "to", "from": "Umar", "to": "Andre Eka" }, { "arrows": "to", "from": "Windi", "to": "Putri" }, { "arrows": "to", "from": "Windi", "to": "Febri" }, { "arrows": "to", "from": "Windi", "to": "Natun" }, { "arrows": "to", "from": "Glendy", "to": "Bagus" }, { "arrows": "to", "from": "Glendy", "to": "Umar" }, { "arrows": "to", "from": "Ariek", "to": "Akhyar" }, { "arrows": "to", "from": "Ariek", "to": "Ronggo" }, { "arrows": "to", "from": "Mahreza", "to": "Mishbahus" }, { "arrows": "to", "from": "Mahreza", "to": "Bagas" }, { "arrows": "to", "from": "Mahreza", "to": "Ali Ridho" }, { "arrows": "to", "from": "Rizky", "to": "Andre Eka" }, { "arrows": "to", "from": "Rizky", "to": "Fahmi" }, { "arrows": "to", "from": "Irfan", "to": "Rizka" }, { "arrows": "to", "from": "Irfan", "to": "Noval" }, { "arrows": "to", "from": "Niken", "to": "Hera" }, { "arrows": "to", "from": "Yusuf", "to": "Akhyar" }, { "arrows": "to", "from": "Yusuf", "to": "Ikbar" }, { "arrows": "to", "from": "Yusuf", "to": "Abid" }, { "arrows": "to", "from": "Ivada", "to": "Dila" }, { "arrows": "to", "from": "Ivada", "to": "Adi Prawono" }, { "arrows": "to", "from": "Yunus", "to": "Abdillah" }, { "arrows": "to", "from": "Yunus", "to": "Rifqi" }, { "arrows": "to", "from": "Yunus", "to": "Fahmi" }, { "arrows": "to", "from": "Sabil", "to": "Ronggo" }, { "arrows": "to", "from": "Sabil", "to": "Firmansyah" }, { "arrows": "to", "from": "Sabil", "to": "Hanafi" }, { "arrows": "to", "from": "Vania", "to": "Melly" }, { "arrows": "to", "from": "Vania", "to": "Revika" }, { "arrows": "to", "from": "Vania", "to": "Devi" }, { "arrows": "to", "from": "Satya", "to": "Farhan" }, { "arrows": "to", "from": "Satya", "to": "Fendi" }, { "arrows": "to", "from": "Putri", "to": "Febri" }, { "arrows": "to", "from": "Putri", "to": "Natun" }, { "arrows": "to", "from": "Putri", "to": "Windi" }, { "arrows": "to", "from": "Adi Prawono", "to": "Akbar" }, { "arrows": "to", "from": "Adi Prawono", "to": "Fais" }, { "arrows": "to", "from": "Ikbar", "to": "Noval" }, { "arrows": "to", "from": "Ikbar", "to": "Rere" }, { "arrows": "to", "from": "Faqih", "to": "Wafda" }, { "arrows": "to", "from": "Faqih", "to": "Farish" }, { "arrows": "to", "from": "Yasmien", "to": "Zulfa" }, { "arrows": "to", "from": "Yasmien", "to": "Riskina" }, { "arrows": "to", "from": "Lydia", "to": "Arul" }, { "arrows": "to", "from": "Lydia", "to": "Alifah" }, { "arrows": "to", "from": "Devi", "to": "Agus" }, { "arrows": "to", "from": "Devi", "to": "Vania" }, { "arrows": "to", "from": "Devi", "to": "Revika" }, { "arrows": "to", "from": "Tasya", "to": "Widiya" }, { "arrows": "to", "from": "Tasya", "to": "Malik" }, { "arrows": "to", "from": "Tasya", "to": "Adi Sahrul" }, { "arrows": "to", "from": "Wahyu Rohmatul", "to": "Aan" }, { "arrows": "to", "from": "Wahyu Rohmatul", "to": "Holis" }, { "arrows": "to", "from": "Wahyu Rohmatul", "to": "Lufthanza" }, { "arrows": "to", "from": "Bima", "to": "Yusron" }, { "arrows": "to", "from": "Bima", "to": "Noval" }, { "arrows": "to", "from": "Bima", "to": "Ikbar" }, { "arrows": "to", "from": "Ilyas", "to": "Adi Prawono" }, { "arrows": "to", "from": "Ilyas", "to": "Fais" }, { "arrows": "to", "from": "Ilyas", "to": "Rizky" }, { "arrows": "to", "from": "Alivian", "to": "Agus" }, { "arrows": "to", "from": "Alivian", "to": "Febrianu" }, { "arrows": "to", "from": "Winda", "to": "Zulfa" }, { "arrows": "to", "from": "Winda", "to": "Riskina" }, { "arrows": "to", "from": "Winda", "to": "Dila" }, { "arrows": "to", "from": "Arifin", "to": "Andreas" }, { "arrows": "to", "from": "Arifin", "to": "Dimas" }, { "arrows": "to", "from": "Balqis", "to": "Putri" }, { "arrows": "to", "from": "Balqis", "to": "Febri" }, { "arrows": "to", "from": "Balqis", "to": "Windi" }, { "arrows": "to", "from": "Nabhan", "to": "Wahyu Cahyanto" }, { "arrows": "to", "from": "Nabhan", "to": "Mahreza" }, { "arrows": "to", "from": "Nabhan", "to": "Mishbahus" }, { "arrows": "to", "from": "Yusron", "to": "Izzul" }, { "arrows": "to", "from": "Yusron", "to": "Frederico" }, { "arrows": "to", "from": "Yusron", "to": "Rafiq" }, { "arrows": "to", "from": "Fedi", "to": "Agus" }, { "arrows": "to", "from": "Fedi", "to": "Nadhif" }, { "arrows": "to", "from": "Fedi", "to": "Wildan" }, { "arrows": "to", "from": "Wahyu Cahyanto", "to": "Akhyar" }, { "arrows": "to", "from": "Wahyu Cahyanto", "to": "Riskina" }, { "arrows": "to", "from": "Wahyu Cahyanto", "to": "Zulfa" }, { "arrows": "to", "from": "Rifqi", "to": "Vemas" }, { "arrows": "to", "from": "Zulfa", "to": "Riskina" }, { "arrows": "to", "from": "Zulfa", "to": "Winda" }, { "arrows": "to", "from": "Zulfa", "to": "Yasmien" }, { "arrows": "to", "from": "Hanafi", "to": "Willy" }, { "arrows": "to", "from": "Hanafi", "to": "Faqih" }, { "arrows": "to", "from": "Hanafi", "to": "Zakaria" }, { "arrows": "to", "from": "Yudha", "to": "Alifah" }, { "arrows": "to", "from": "Yudha", "to": "Zakaria" }, { "arrows": "to", "from": "Yudha", "to": "Willy" }, { "arrows": "to", "from": "Auliya", "to": "Febi" }, { "arrows": "to", "from": "Auliya", "to": "Lia" }, { "arrows": "to", "from": "Auliya", "to": "Zakaria" }, { "arrows": "to", "from": "Abdillah", "to": "Yunus" }, { "arrows": "to", "from": "Abdillah", "to": "Rifqi" }, { "arrows": "to", "from": "Abdillah", "to": "Syaiful Ramadani" }, { "arrows": "to", "from": "Mishbahus", "to": "Wafda" }, { "arrows": "to", "from": "Mishbahus", "to": "Hendra" }, { "arrows": "to", "from": "Mishbahus", "to": "Bagas" }, { "arrows": "to", "from": "Lufthanza", "to": "Akhyar" }, { "arrows": "to", "from": "Lufthanza", "to": "Aan" }, { "arrows": "to", "from": "Rosyid", "to": "Ariek" }, { "arrows": "to", "from": "Rosyid", "to": "Alivian" }, { "arrows": "to", "from": "Aldy", "to": "Niken" }, { "arrows": "to", "from": "Aldy", "to": "Cici" }, { "arrows": "to", "from": "Natun", "to": "Putri" }, { "arrows": "to", "from": "Natun", "to": "Febri" }, { "arrows": "to", "from": "Natun", "to": "Windi" }, { "arrows": "to", "from": "Ahya", "to": "Ami" }, { "arrows": "to", "from": "Ahya", "to": "Niken" }, { "arrows": "to", "from": "Ahya", "to": "Lia" }, { "arrows": "to", "from": "Fentry", "to": "Lisda" }, { "arrows": "to", "from": "Fentry", "to": "Auliya" }, { "arrows": "to", "from": "Fentry", "to": "Juan" }, { "arrows": "to", "from": "Noval", "to": "Zakaria" }, { "arrows": "to", "from": "Noval", "to": "Irfan" }, { "arrows": "to", "from": "Oktaveian", "to": "Zakaria" }, { "arrows": "to", "from": "Oktaveian", "to": "Sabil" }, { "arrows": "to", "from": "Zarkasyi", "to": "Samsul" }, { "arrows": "to", "from": "Zarkasyi", "to": "Bintang" }, { "arrows": "to", "from": "Zarkasyi", "to": "Faqih" }, { "arrows": "to", "from": "Anandya", "to": "Helmia" }, { "arrows": "to", "from": "Anandya", "to": "Vicky" }, { "arrows": "to", "from": "Anandya", "to": "Billy" }, { "arrows": "to", "from": "Lia", "to": "Balqis" }, { "arrows": "to", "from": "Lia", "to": "Ahya" }, { "arrows": "to", "from": "Syaiful Ramadani", "to": "Vemas" }, { "arrows": "to", "from": "Syaiful Ramadani", "to": "Rifqi" }, { "arrows": "to", "from": "Syaiful Ramadani", "to": "Abdillah" }, { "arrows": "to", "from": "Syaiful Ramadani", "to": "Fahmi" }, { "arrows": "to", "from": "Syaiful Ramadani", "to": "Zarkasyi" }, { "arrows": "to", "from": "Syaiful Ramadani", "to": "Farhan" }, { "arrows": "to", "from": "Syaiful Ramadani", "to": "Bagus" }, { "arrows": "to", "from": "Syaiful Ramadani", "to": "Umar" }, { "arrows": "to", "from": "Ali Ridho", "to": "Mahreza" }, { "arrows": "to", "from": "Ali Ridho", "to": "Shafy" }, { "arrows": "to", "from": "Aan", "to": "Wahyu Rohmatul" }, { "arrows": "to", "from": "Aan", "to": "Holis" }, { "arrows": "to", "from": "Ami", "to": "Ahya" }, { "arrows": "to", "from": "Ami", "to": "Niken" }, { "arrows": "to", "from": "Elisa", "to": "Febi" }, { "arrows": "to", "from": "Elisa", "to": "Khalisa" }, { "arrows": "to", "from": "Melly", "to": "Vania" }, { "arrows": "to", "from": "Melly", "to": "Juan" }, { "arrows": "to", "from": "Melly", "to": "Fentry" }, { "arrows": "to", "from": "Juan", "to": "Samsul" }, { "arrows": "to", "from": "Juan", "to": "Zarkasyi" }, { "arrows": "to", "from": "Nico", "to": "Tofan" }, { "arrows": "to", "from": "Nico", "to": "Surya" }, { "arrows": "to", "from": "Rizka", "to": "Irfan" }, { "arrows": "to", "from": "Billy", "to": "Anandya" }, { "arrows": "to", "from": "Billy", "to": "Adri" }, { "arrows": "to", "from": "Hamizan", "to": "Malik" }, { "arrows": "to", "from": "Hamizan", "to": "Adi Sahrul" }, { "arrows": "to", "from": "Nadiah", "to": "Cici" }, { "arrows": "to", "from": "Nadiah", "to": "Devi" }, { "arrows": "to", "from": "Nadiah", "to": "Adi Prawono" }, { "arrows": "to", "from": "Febi", "to": "Elisa" }, { "arrows": "to", "from": "Febi", "to": "Khalisa" }, { "arrows": "to", "from": "Firmansyah", "to": "Iqbil" }, { "arrows": "to", "from": "Firmansyah", "to": "Yogi" }, { "arrows": "to", "from": "Ali", "to": "Malik" }, { "arrows": "to", "from": "Ali", "to": "Adi Sahrul" }, { "arrows": "to", "from": "Helmia", "to": "Vicky" }, { "arrows": "to", "from": "Helmia", "to": "Anandya" }, { "arrows": "to", "from": "Helmia", "to": "Hafidz" }, { "arrows": "to", "from": "Shafy", "to": "Tofan" }, { "arrows": "to", "from": "Shafy", "to": "Nico" }, { "arrows": "to", "from": "Shafy", "to": "Ulum" }, { "arrows": "to", "from": "Fais", "to": "Adi Prawono" }, { "arrows": "to", "from": "Fais", "to": "Akbar" }, { "arrows": "to", "from": "Ulum", "to": "Surya" }, { "arrows": "to", "from": "Cici", "to": "Nadiah" }, { "arrows": "to", "from": "Cici", "to": "Agus" }, { "arrows": "to", "from": "Fahmi", "to": "Rizky" }, { "arrows": "to", "from": "Fahmi", "to": "Yunus" }, { "arrows": "to", "from": "Fahmi", "to": "Abdillah" }, { "arrows": "to", "from": "Dimas", "to": "Ariek" }, { "arrows": "to", "from": "Dimas", "to": "Ronggo" }, { "arrows": "to", "from": "Andreas", "to": "Arifin" }, { "arrows": "to", "from": "Lisda", "to": "Fentry" }, { "arrows": "to", "from": "Lisda", "to": "Auliya" }, { "arrows": "to", "from": "Lisda", "to": "Melly" }, { "arrows": "to", "from": "Vemas", "to": "Abdillah" }, { "arrows": "to", "from": "Dina", "to": "Hera" }, { "arrows": "to", "from": "Dina", "to": "Rara" }, { "arrows": "to", "from": "Dina", "to": "Anandya" }, { "arrows": "to", "from": "Rere", "to": "Noval" }, { "arrows": "to", "from": "Rere", "to": "Ikbar" }, { "arrows": "to", "from": "Adri", "to": "Rosi" }, { "arrows": "to", "from": "Adri", "to": "Ramadani" }, { "arrows": "to", "from": "Rissa", "to": "Widiya" }, { "arrows": "to", "from": "Rissa", "to": "Ning" }, { "arrows": "to", "from": "Rissa", "to": "Vania" }, { "arrows": "to", "from": "Faisal", "to": "Fais" }, { "arrows": "to", "from": "Faisal", "to": "Farish" }, { "arrows": "to", "from": "Faisal", "to": "Wafda" }, { "arrows": "to", "from": "Samsul", "to": "Juan" }, { "arrows": "to", "from": "Samsul", "to": "Bintang" }, { "arrows": "to", "from": "Samsul", "to": "Fendi" }, { "arrows": "to", "from": "Iqbil", "to": "Firmansyah" }, { "arrows": "to", "from": "Iqbil", "to": "Ikbar" }, { "arrows": "to", "from": "Adi Sahrul", "to": "Tasya" }, { "arrows": "to", "from": "Adi Sahrul", "to": "Malik" }, { "arrows": "to", "from": "Adi Sahrul", "to": "Ali" }, { "arrows": "to", "from": "Malik", "to": "Adi Sahrul" }, { "arrows": "to", "from": "Malik", "to": "Ali" }, { "arrows": "to", "from": "Malik", "to": "Tasya" }, { "arrows": "to", "from": "Hafidz", "to": "Febri" }, { "arrows": "to", "from": "Hafidz", "to": "Zarkasyi" }, { "arrows": "to", "from": "Hafidz", "to": "Windi" }, { "arrows": "to", "from": "Jizdan", "to": "Fajar" }, { "arrows": "to", "from": "Jizdan", "to": "Fahmi Fahrizi" }, { "arrows": "to", "from": "Jizdan", "to": "Danuarta" }, { "arrows": "to", "from": "Nadhif", "to": "Agus" }, { "arrows": "to", "from": "Nadhif", "to": "Alivian" }, { "arrows": "to", "from": "Abi", "to": "Erlangga" }, { "arrows": "to", "from": "Abi", "to": "Valent" }, { "arrows": "to", "from": "Erlangga", "to": "Desi" }, { "arrows": "to", "from": "Erlangga", "to": "Olifia" }, { "arrows": "to", "from": "Desi", "to": "Erlangga" }, { "arrows": "to", "from": "Desi", "to": "Olifia" }, { "arrows": "to", "from": "Frederico", "to": "Izzul" }, { "arrows": "to", "from": "Frederico", "to": "Yusron" }, { "arrows": "to", "from": "Fendi", "to": "Yudha" }, { "arrows": "to", "from": "Fendi", "to": "Juan" }, { "arrows": "to", "from": "Fendi", "to": "Bagus" }, { "arrows": "to", "from": "Riskina", "to": "Zulfa" }, { "arrows": "to", "from": "Riskina", "to": "Winda" }, { "arrows": "to", "from": "Riskina", "to": "Yasmien" }, { "arrows": "to", "from": "Olifia", "to": "Desi" }, { "arrows": "to", "from": "Olifia", "to": "Niken" }, { "arrows": "to", "from": "Olifia", "to": "Rosi" }, { "arrows": "to", "from": "Willy", "to": "Dila" }, { "arrows": "to", "from": "Willy", "to": "Hanafi" }, { "arrows": "to", "from": "Willy", "to": "Fais" }]);
+      nodeColors = {};
+      allNodes = nodes.get({ returnType: "Object" });
+      for (nodeId in allNodes) {
+        nodeColors[nodeId] = allNodes[nodeId].color;
       }
+      allEdges = edges.get({ returnType: "Object" });
+      // adding nodes and edges to the graph
+      data = { nodes: nodes, edges: edges };
+
+      var options = { "interaction": { "navigationButtons": true, "keyboard": true }, "physics": { "enabled": true } };
+      network = new vis.Network(container, data, options);
+      network.on("stabilizationProgress", function (params) {
+        document.getElementById('loadingBar').removeAttribute("style");
+        var maxWidth = 496;
+        var minWidth = 20;
+        var widthFactor = params.iterations / params.total;
+        var width = Math.max(minWidth, maxWidth * widthFactor);
+        document.getElementById('bar').style.width = width + 'px';
+        document.getElementById('text').innerHTML = Math.round(widthFactor * 100) + '%';
+      });
+      network.once("stabilizationIterationsDone", function () {
+        document.getElementById('text').innerHTML = '100%';
+        document.getElementById('bar').style.width = '496px';
+        document.getElementById('loadingBar').style.opacity = 0; style = "padding: 10px; background: #fff; border: 1px solid #ccc; border-radius: 4px; position: absolute; top: 60px; left: 15px; z-index: 9999;" >
+          // really clean the dom element
+          setTimeout(function () { document.getElementById('loadingBar').style.display = 'none'; }, 500);
+        const legendContainer = document.getElementById('legend');
+
+        legendContainer.style.padding = "10px";
+        legendContainer.style.background = "#fff";
+        legendContainer.style.border = "1px solid #ccc";
+        legendContainer.style.borderRadius = "4px";
+        legendContainer.style.position = "absolute";
+        legendContainer.style.top = "80px";
+        legendContainer.style.left = "15px";
+        legendContainer.style.zIndex = "9999";
+
+        const heading = document.createElement("h3");
+        heading.textContent = "List Sirkel";
+        legendContainer.appendChild(heading);
+
+        const colors = [
+          '#1f77b4', '#aec7e8', '#ff7f0e', '#ffbb78',
+          '#2ca02c', '#98df8a', '#d62728', '#ff9896',
+          '#9467bd', '#c5b0d5', '#8c564b', '#c49c94',
+          '#e377c2'
+        ];
+
+        const communities = Array.from({ length: 12 }, (_, i) => i + 1); 
+        communities.forEach((community, index) => {
+          if (index < colors.length) {
+            const legendItem = document.createElement("div");
+            legendItem.className = "legend-item";
+
+            const colorBox = document.createElement("div");
+            colorBox.className = "legend-color";
+            colorBox.style.background = colors[index];
+
+            const label = document.createElement("div");
+            label.textContent = `Sirkel ${community}`;
+
+            legendItem.appendChild(colorBox);
+            legendItem.appendChild(label);
+            legendContainer.appendChild(legendItem);
+          }
+        });
+      });
+      return network;
     }
-  }
-  selectNodes(selectedNodes)
-}</script>
-            <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/vis-network/9.1.2/dist/dist/vis-network.min.css" integrity="sha512-WgxfT5LWjfszlPHXRmBWHkV2eceiWTOBvrKCNbdgDYTHrT2AeLCGbF4sZlZw3UMN3WtL0tGUoIAKsu8mllg/XA==" crossorigin="anonymous" referrerpolicy="no-referrer" />
-            <script src="https://cdnjs.cloudflare.com/ajax/libs/vis-network/9.1.2/dist/vis-network.min.js" integrity="sha512-LnvoEWDFrqGHlHmDD2101OrLcbsfkrzoSpvtSQtxK3RMnRV0eOkhhBN2dXHKRrUU8p2DGRTk35n4O8nWSVe1mQ==" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
-            
-            
-            
-            
-            
-            
+    drawGraph();
+  </script>
+</body>
 
-        
-<center>
-<h1>Social Network Analysis of INCODE members</h1>
-</center>
-
-<!-- <link rel="stylesheet" href="../node_modules/vis/dist/vis.min.css" type="text/css" />
-<script type="text/javascript" src="../node_modules/vis/dist/vis.js"> </script>-->
-        <link
-          href="https://cdn.jsdelivr.net/npm/bootstrap@5.0.0-beta3/dist/css/bootstrap.min.css"
-          rel="stylesheet"
-          integrity="sha384-eOJMYsd53ii+scO/bJGFsiCZc+5NDVN2yr8+0RDqr0Ql0h+rP48ckxlpbzKgwra6"
-          crossorigin="anonymous"
-        />
-        <script
-          src="https://cdn.jsdelivr.net/npm/bootstrap@5.0.0-beta3/dist/js/bootstrap.bundle.min.js"
-          integrity="sha384-JEW9xMcG8R+pH31jmWH6WWP0WintQrMb4s7ZOdauHnUtxwoG2vI5DkLtS3qm9Ekf"
-          crossorigin="anonymous"
-        ></script>
-
-        <style type="text/css">
-
-             #mynetwork {
-                 width: 100%;
-                 height: 600px;
-                 background-color: #ffffff;
-                 border: 1px solid lightgray;
-                 position: relative;
-                 float: left;
-             }
-
-             
-             #loadingBar {
-                 position:absolute;
-                 top:0px;
-                 left:0px;
-                 width: 100%;
-                 height: 600px;
-                 background-color:rgba(200,200,200,0.8);
-                 -webkit-transition: all 0.5s ease;
-                 -moz-transition: all 0.5s ease;
-                 -ms-transition: all 0.5s ease;
-                 -o-transition: all 0.5s ease;
-                 transition: all 0.5s ease;
-                 opacity:1;
-             }
-
-             #bar {
-                 position:absolute;
-                 top:0px;
-                 left:0px;
-                 width:20px;
-                 height:20px;
-                 margin:auto auto auto auto;
-                 border-radius:11px;
-                 border:2px solid rgba(30,30,30,0.05);
-                 background: rgb(0, 173, 246); /* Old browsers */
-                 box-shadow: 2px 0px 4px rgba(0,0,0,0.4);
-             }
-
-             #border {
-                 position:absolute;
-                 top:10px;
-                 left:10px;
-                 width:500px;
-                 height:23px;
-                 margin:auto auto auto auto;
-                 box-shadow: 0px 0px 4px rgba(0,0,0,0.2);
-                 border-radius:10px;
-             }
-
-             #text {
-                 position:absolute;
-                 top:8px;
-                 left:530px;
-                 width:30px;
-                 height:50px;
-                 margin:auto auto auto auto;
-                 font-size:22px;
-                 color: #000000;
-             }
-
-             div.outerBorder {
-                 position:relative;
-                 top:400px;
-                 width:600px;
-                 height:44px;
-                 margin:auto auto auto auto;
-                 border:8px solid rgba(0,0,0,0.1);
-                 background: rgb(252,252,252); /* Old browsers */
-                 background: -moz-linear-gradient(top,  rgba(252,252,252,1) 0%, rgba(237,237,237,1) 100%); /* FF3.6+ */
-                 background: -webkit-gradient(linear, left top, left bottom, color-stop(0%,rgba(252,252,252,1)), color-stop(100%,rgba(237,237,237,1))); /* Chrome,Safari4+ */
-                 background: -webkit-linear-gradient(top,  rgba(252,252,252,1) 0%,rgba(237,237,237,1) 100%); /* Chrome10+,Safari5.1+ */
-                 background: -o-linear-gradient(top,  rgba(252,252,252,1) 0%,rgba(237,237,237,1) 100%); /* Opera 11.10+ */
-                 background: -ms-linear-gradient(top,  rgba(252,252,252,1) 0%,rgba(237,237,237,1) 100%); /* IE10+ */
-                 background: linear-gradient(to bottom,  rgba(252,252,252,1) 0%,rgba(237,237,237,1) 100%); /* W3C */
-                 filter: progid:DXImageTransform.Microsoft.gradient( startColorstr='#fcfcfc', endColorstr='#ededed',GradientType=0 ); /* IE6-9 */
-                 border-radius:72px;
-                 box-shadow: 0px 0px 10px rgba(0,0,0,0.2);
-             }
-             
-
-             
-
-             
-        </style>
-    </head>
-
-
-    <body>
-        <div class="card" style="width: 100%">
-            
-            
-            <div id="mynetwork" class="card-body"></div>
-        </div>
-
-        
-            <div id="loadingBar">
-              <div class="outerBorder">
-                <div id="text">0%</div>
-                <div id="border">
-                  <div id="bar"></div>
-                </div>
-              </div>
-            </div>
-        
-        
-
-        <script type="text/javascript">
-
-              // initialize global variables.
-              var edges;
-              var nodes;
-              var allNodes;
-              var allEdges;
-              var nodeColors;
-              var originalNodes;
-              var network;
-              var container;
-              var options, data;
-              var filter = {
-                  item : '',
-                  property : '',
-                  value : []
-              };
-
-              
-
-              
-
-              // This method is responsible for drawing the graph, returns the drawn network
-              function drawGraph() {
-                  var container = document.getElementById('mynetwork');
-
-                  
-
-                  // parsing and collecting nodes and edges from the python
-                  nodes = new vis.DataSet([{"color": "#7f00ff", "id": "Widiya", "label": "Widiya", "shape": "dot"}, {"color": "#7f00ff", "id": "Malik", "label": "Malik", "shape": "dot"}, {"color": "#7f00ff", "id": "Adi Sahrul", "label": "Adi Sahrul", "shape": "dot"}, {"color": "#7f00ff", "id": "Ali", "label": "Ali", "shape": "dot"}, {"color": "#5541fc", "id": "Zakaria", "label": "Zakaria", "shape": "dot"}, {"color": "#5541fc", "id": "Sabil", "label": "Sabil", "shape": "dot"}, {"color": "#5541fc", "id": "Hanafi", "label": "Hanafi", "shape": "dot"}, {"color": "#5541fc", "id": "Faqih", "label": "Faqih", "shape": "dot"}, {"color": "#2a7ff6", "id": "Ilham", "label": "Ilham", "shape": "dot"}, {"color": "#2a7ff6", "id": "Mahreza", "label": "Mahreza", "shape": "dot"}, {"color": "#00b4eb", "id": "Firmansyah", "label": "Firmansyah", "shape": "dot"}, {"color": "#2a7ff6", "id": "Hendra", "label": "Hendra", "shape": "dot"}, {"color": "#2adcdc", "id": "Ronggo", "label": "Ronggo", "shape": "dot"}, {"color": "#2adcdc", "id": "Akhyar", "label": "Akhyar", "shape": "dot"}, {"color": "#2adcdc", "id": "Agus", "label": "Agus", "shape": "dot"}, {"color": "#2a7ff6", "id": "Habiburrochman", "label": "Habiburrochman", "shape": "dot"}, {"color": "#2a7ff6", "id": "Anam", "label": "Anam", "shape": "dot"}, {"color": "#2a7ff6", "id": "Mishbahus", "label": "Mishbahus", "shape": "dot"}, {"color": "#2a7ff6", "id": "Wafda", "label": "Wafda", "shape": "dot"}, {"color": "#54f6ca", "id": "Faisal", "label": "Faisal", "shape": "dot"}, {"color": "#7fffb4", "id": "Bagus", "label": "Bagus", "shape": "dot"}, {"color": "#7fffb4", "id": "Glendy", "label": "Glendy", "shape": "dot"}, {"color": "#7fffb4", "id": "Andre Eka", "label": "Andre Eka", "shape": "dot"}, {"color": "#7fffb4", "id": "Naufal", "label": "Naufal", "shape": "dot"}, {"color": "#a9f69b", "id": "Hera", "label": "Hera", "shape": "dot"}, {"color": "#2adcdc", "id": "Dimas", "label": "Dimas", "shape": "dot"}, {"color": "#2adcdc", "id": "Alivian", "label": "Alivian", "shape": "dot"}, {"color": "#2adcdc", "id": "Ariek", "label": "Ariek", "shape": "dot"}, {"color": "#d4dc7f", "id": "Wahyu Cahyanto", "label": "Wahyu Cahyanto", "shape": "dot"}, {"color": "#ffb461", "id": "Ramadani", "label": "Ramadani", "shape": "dot"}, {"color": "#ffb461", "id": "Evi", "label": "Evi", "shape": "dot"}, {"color": "#ffb461", "id": "Erwin", "label": "Erwin", "shape": "dot"}, {"color": "#54f6ca", "id": "Adi Prawono", "label": "Adi Prawono", "shape": "dot"}, {"color": "#00b4eb", "id": "Izzul", "label": "Izzul", "shape": "dot"}, {"color": "#00b4eb", "id": "Frederico", "label": "Frederico", "shape": "dot"}, {"color": "#00b4eb", "id": "Yusron", "label": "Yusron", "shape": "dot"}, {"color": "#00b4eb", "id": "Rafiq", "label": "Rafiq", "shape": "dot"}, {"color": "#ff7f41", "id": "Ramadika", "label": "Ramadika", "shape": "dot"}, {"color": "#ff7f41", "id": "Anandya", "label": "Anandya", "shape": "dot"}, {"color": "#ff7f41", "id": "Hafidz", "label": "Hafidz", "shape": "dot"}, {"color": "#ffb461", "id": "Reza", "label": "Reza", "shape": "dot"}, {"color": "#ffb461", "id": "Rizal", "label": "Rizal", "shape": "dot"}, {"color": "#ffb461", "id": "Rosi", "label": "Rosi", "shape": "dot"}, {"color": "#ffb461", "id": "Adi Rahman", "label": "Adi Rahman", "shape": "dot"}, {"color": "#54f6ca", "id": "Akbar", "label": "Akbar", "shape": "dot"}, {"color": "#54f6ca", "id": "Fais", "label": "Fais", "shape": "dot"}, {"color": "#7fffb4", "id": "Umar", "label": "Umar", "shape": "dot"}, {"color": "#ffb461", "id": "Adri", "label": "Adri", "shape": "dot"}, {"color": "#ffb461", "id": "Azis Alfajar", "label": "Azis Alfajar", "shape": "dot"}, {"color": "#ff4121", "id": "Tofan", "label": "Tofan", "shape": "dot"}, {"color": "#ff4121", "id": "Surya", "label": "Surya", "shape": "dot"}, {"color": "#ff4121", "id": "Nico", "label": "Nico", "shape": "dot"}, {"color": "#ff4121", "id": "Jizdan", "label": "Jizdan", "shape": "dot"}, {"color": "#2a7ff6", "id": "Bagas", "label": "Bagas", "shape": "dot"}, {"color": "#d4dc7f", "id": "Dila", "label": "Dila", "shape": "dot"}, {"color": "#54f6ca", "id": "Ivada", "label": "Ivada", "shape": "dot"}, {"color": "#d4dc7f", "id": "Riskina", "label": "Riskina", "shape": "dot"}, {"color": "#a9f69b", "id": "Andi", "label": "Andi", "shape": "dot"}, {"color": "#a9f69b", "id": "Aldy", "label": "Aldy", "shape": "dot"}, {"color": "#ff7f41", "id": "Windi", "label": "Windi", "shape": "dot"}, {"color": "#ff7f41", "id": "Putri", "label": "Putri", "shape": "dot"}, {"color": "#ff7f41", "id": "Febri", "label": "Febri", "shape": "dot"}, {"color": "#ff7f41", "id": "Natun", "label": "Natun", "shape": "dot"}, {"color": "#ff4121", "id": "Ali Ridho", "label": "Ali Ridho", "shape": "dot"}, {"color": "#54f6ca", "id": "Rizky", "label": "Rizky", "shape": "dot"}, {"color": "#7fffb4", "id": "Fahmi", "label": "Fahmi", "shape": "dot"}, {"color": "#00b4eb", "id": "Irfan", "label": "Irfan", "shape": "dot"}, {"color": "#00b4eb", "id": "Rizka", "label": "Rizka", "shape": "dot"}, {"color": "#00b4eb", "id": "Noval", "label": "Noval", "shape": "dot"}, {"color": "#a9f69b", "id": "Niken", "label": "Niken", "shape": "dot"}, {"color": "#00b4eb", "id": "Yusuf", "label": "Yusuf", "shape": "dot"}, {"color": "#00b4eb", "id": "Ikbar", "label": "Ikbar", "shape": "dot"}, {"color": "#00b4eb", "id": "Abid", "label": "Abid", "shape": "dot"}, {"color": "#7fffb4", "id": "Yunus", "label": "Yunus", "shape": "dot"}, {"color": "#7fffb4", "id": "Abdillah", "label": "Abdillah", "shape": "dot"}, {"color": "#7fffb4", "id": "Rifqi", "label": "Rifqi", "shape": "dot"}, {"color": "#7f00ff", "id": "Vania", "label": "Vania", "shape": "dot"}, {"color": "#ff0000", "id": "Melly", "label": "Melly", "shape": "dot"}, {"color": "#7f00ff", "id": "Revika", "label": "Revika", "shape": "dot"}, {"color": "#7f00ff", "id": "Devi", "label": "Devi", "shape": "dot"}, {"color": "#ff0000", "id": "Satya", "label": "Satya", "shape": "dot"}, {"color": "#ff0000", "id": "Farhan", "label": "Farhan", "shape": "dot"}, {"color": "#ff0000", "id": "Fendi", "label": "Fendi", "shape": "dot"}, {"color": "#00b4eb", "id": "Rere", "label": "Rere", "shape": "dot"}, {"color": "#54f6ca", "id": "Farish", "label": "Farish", "shape": "dot"}, {"color": "#d4dc7f", "id": "Yasmien", "label": "Yasmien", "shape": "dot"}, {"color": "#d4dc7f", "id": "Zulfa", "label": "Zulfa", "shape": "dot"}, {"color": "#5541fc", "id": "Lydia", "label": "Lydia", "shape": "dot"}, {"color": "#5541fc", "id": "Arul", "label": "Arul", "shape": "dot"}, {"color": "#5541fc", "id": "Alifah", "label": "Alifah", "shape": "dot"}, {"color": "#7f00ff", "id": "Tasya", "label": "Tasya", "shape": "dot"}, {"color": "#2adcdc", "id": "Wahyu Rohmatul", "label": "Wahyu Rohmatul", "shape": "dot"}, {"color": "#2adcdc", "id": "Aan", "label": "Aan", "shape": "dot"}, {"color": "#2adcdc", "id": "Holis", "label": "Holis", "shape": "dot"}, {"color": "#2adcdc", "id": "Lufthanza", "label": "Lufthanza", "shape": "dot"}, {"color": "#00b4eb", "id": "Bima", "label": "Bima", "shape": "dot"}, {"color": "#54f6ca", "id": "Ilyas", "label": "Ilyas", "shape": "dot"}, {"color": "#2adcdc", "id": "Febrianu", "label": "Febrianu", "shape": "dot"}, {"color": "#d4dc7f", "id": "Winda", "label": "Winda", "shape": "dot"}, {"color": "#2adcdc", "id": "Arifin", "label": "Arifin", "shape": "dot"}, {"color": "#2adcdc", "id": "Andreas", "label": "Andreas", "shape": "dot"}, {"color": "#ff7f41", "id": "Balqis", "label": "Balqis", "shape": "dot"}, {"color": "#2a7ff6", "id": "Nabhan", "label": "Nabhan", "shape": "dot"}, {"color": "#2adcdc", "id": "Fedi", "label": "Fedi", "shape": "dot"}, {"color": "#2adcdc", "id": "Nadhif", "label": "Nadhif", "shape": "dot"}, {"color": "#2adcdc", "id": "Wildan", "label": "Wildan", "shape": "dot"}, {"color": "#7fffb4", "id": "Vemas", "label": "Vemas", "shape": "dot"}, {"color": "#5541fc", "id": "Willy", "label": "Willy", "shape": "dot"}, {"color": "#5541fc", "id": "Yudha", "label": "Yudha", "shape": "dot"}, {"color": "#ff0000", "id": "Auliya", "label": "Auliya", "shape": "dot"}, {"color": "#ff0000", "id": "Febi", "label": "Febi", "shape": "dot"}, {"color": "#a9f69b", "id": "Lia", "label": "Lia", "shape": "dot"}, {"color": "#7fffb4", "id": "Syaiful Ramadani", "label": "Syaiful Ramadani", "shape": "dot"}, {"color": "#2adcdc", "id": "Rosyid", "label": "Rosyid", "shape": "dot"}, {"color": "#a9f69b", "id": "Cici", "label": "Cici", "shape": "dot"}, {"color": "#a9f69b", "id": "Ahya", "label": "Ahya", "shape": "dot"}, {"color": "#a9f69b", "id": "Ami", "label": "Ami", "shape": "dot"}, {"color": "#ff0000", "id": "Fentry", "label": "Fentry", "shape": "dot"}, {"color": "#ff0000", "id": "Lisda", "label": "Lisda", "shape": "dot"}, {"color": "#ff0000", "id": "Juan", "label": "Juan", "shape": "dot"}, {"color": "#5541fc", "id": "Oktaveian", "label": "Oktaveian", "shape": "dot"}, {"color": "#ff0000", "id": "Zarkasyi", "label": "Zarkasyi", "shape": "dot"}, {"color": "#ff0000", "id": "Samsul", "label": "Samsul", "shape": "dot"}, {"color": "#ff0000", "id": "Bintang", "label": "Bintang", "shape": "dot"}, {"color": "#ff7f41", "id": "Helmia", "label": "Helmia", "shape": "dot"}, {"color": "#ff7f41", "id": "Vicky", "label": "Vicky", "shape": "dot"}, {"color": "#ffb461", "id": "Billy", "label": "Billy", "shape": "dot"}, {"color": "#ff4121", "id": "Shafy", "label": "Shafy", "shape": "dot"}, {"color": "#ff0000", "id": "Elisa", "label": "Elisa", "shape": "dot"}, {"color": "#ff0000", "id": "Khalisa", "label": "Khalisa", "shape": "dot"}, {"color": "#7f00ff", "id": "Hamizan", "label": "Hamizan", "shape": "dot"}, {"color": "#a9f69b", "id": "Nadiah", "label": "Nadiah", "shape": "dot"}, {"color": "#00b4eb", "id": "Iqbil", "label": "Iqbil", "shape": "dot"}, {"color": "#00b4eb", "id": "Yogi", "label": "Yogi", "shape": "dot"}, {"color": "#ff4121", "id": "Ulum", "label": "Ulum", "shape": "dot"}, {"color": "#a9f69b", "id": "Dina", "label": "Dina", "shape": "dot"}, {"color": "#a9f69b", "id": "Rara", "label": "Rara", "shape": "dot"}, {"color": "#7f00ff", "id": "Rissa", "label": "Rissa", "shape": "dot"}, {"color": "#7f00ff", "id": "Ning", "label": "Ning", "shape": "dot"}, {"color": "#54f6ca", "id": "wafda", "label": "wafda", "shape": "dot"}, {"color": "#ff4121", "id": "Fajar", "label": "Fajar", "shape": "dot"}, {"color": "#ff4121", "id": "Fahmi Fahrizi", "label": "Fahmi Fahrizi", "shape": "dot"}, {"color": "#ff4121", "id": "Danuarta", "label": "Danuarta", "shape": "dot"}, {"color": "#ffb461", "id": "Abi", "label": "Abi", "shape": "dot"}, {"color": "#ffb461", "id": "Erlangga", "label": "Erlangga", "shape": "dot"}, {"color": "#ffb461", "id": "Valent", "label": "Valent", "shape": "dot"}, {"color": "#ffb461", "id": "Desi", "label": "Desi", "shape": "dot"}, {"color": "#ffb461", "id": "Olifia", "label": "Olifia", "shape": "dot"}]);
-                  edges = new vis.DataSet([{"arrows": "to", "from": "Widiya", "to": "Malik"}, {"arrows": "to", "from": "Widiya", "to": "Adi Sahrul"}, {"arrows": "to", "from": "Widiya", "to": "Ali"}, {"arrows": "to", "from": "Zakaria", "to": "Sabil"}, {"arrows": "to", "from": "Zakaria", "to": "Hanafi"}, {"arrows": "to", "from": "Zakaria", "to": "Faqih"}, {"arrows": "to", "from": "Ilham", "to": "Mahreza"}, {"arrows": "to", "from": "Ilham", "to": "Firmansyah"}, {"arrows": "to", "from": "Ilham", "to": "Hendra"}, {"arrows": "to", "from": "Ronggo", "to": "Akhyar"}, {"arrows": "to", "from": "Ronggo", "to": "Sabil"}, {"arrows": "to", "from": "Ronggo", "to": "Agus"}, {"arrows": "to", "from": "Habiburrochman", "to": "Anam"}, {"arrows": "to", "from": "Habiburrochman", "to": "Mishbahus"}, {"arrows": "to", "from": "Habiburrochman", "to": "Hendra"}, {"arrows": "to", "from": "Wafda", "to": "Faisal"}, {"arrows": "to", "from": "Wafda", "to": "Mishbahus"}, {"arrows": "to", "from": "Wafda", "to": "Hendra"}, {"arrows": "to", "from": "Bagus", "to": "Glendy"}, {"arrows": "to", "from": "Bagus", "to": "Andre Eka"}, {"arrows": "to", "from": "Bagus", "to": "Naufal"}, {"arrows": "to", "from": "Hera", "to": "Dimas"}, {"arrows": "to", "from": "Agus", "to": "Akhyar"}, {"arrows": "to", "from": "Agus", "to": "Ronggo"}, {"arrows": "to", "from": "Agus", "to": "Alivian"}, {"arrows": "to", "from": "Agus", "to": "Ariek"}, {"arrows": "to", "from": "Akhyar", "to": "Agus"}, {"arrows": "to", "from": "Akhyar", "to": "Ronggo"}, {"arrows": "to", "from": "Akhyar", "to": "Wahyu Cahyanto"}, {"arrows": "to", "from": "Ramadani", "to": "Evi"}, {"arrows": "to", "from": "Ramadani", "to": "Erwin"}, {"arrows": "to", "from": "Ramadani", "to": "Adi Prawono"}, {"arrows": "to", "from": "Izzul", "to": "Frederico"}, {"arrows": "to", "from": "Izzul", "to": "Yusron"}, {"arrows": "to", "from": "Izzul", "to": "Rafiq"}, {"arrows": "to", "from": "Ramadika", "to": "Anandya"}, {"arrows": "to", "from": "Ramadika", "to": "Hafidz"}, {"arrows": "to", "from": "Reza", "to": "Rizal"}, {"arrows": "to", "from": "Reza", "to": "Rosi"}, {"arrows": "to", "from": "Reza", "to": "Adi Rahman"}, {"arrows": "to", "from": "Akbar", "to": "Fais"}, {"arrows": "to", "from": "Andre Eka", "to": "Bagus"}, {"arrows": "to", "from": "Andre Eka", "to": "Glendy"}, {"arrows": "to", "from": "Andre Eka", "to": "Umar"}, {"arrows": "to", "from": "Rosi", "to": "Adi Rahman"}, {"arrows": "to", "from": "Rosi", "to": "Adri"}, {"arrows": "to", "from": "Rosi", "to": "Ramadani"}, {"arrows": "to", "from": "Rosi", "to": "Azis Alfajar"}, {"arrows": "to", "from": "Rosi", "to": "Rizal"}, {"arrows": "to", "from": "Tofan", "to": "Surya"}, {"arrows": "to", "from": "Tofan", "to": "Nico"}, {"arrows": "to", "from": "Tofan", "to": "Jizdan"}, {"arrows": "to", "from": "Hendra", "to": "Mishbahus"}, {"arrows": "to", "from": "Hendra", "to": "Bagas"}, {"arrows": "to", "from": "Hendra", "to": "Habiburrochman"}, {"arrows": "to", "from": "Anam", "to": "Habiburrochman"}, {"arrows": "to", "from": "Anam", "to": "Bagas"}, {"arrows": "to", "from": "Anam", "to": "Mishbahus"}, {"arrows": "to", "from": "Dila", "to": "Ivada"}, {"arrows": "to", "from": "Dila", "to": "Riskina"}, {"arrows": "to", "from": "Andi", "to": "Aldy"}, {"arrows": "to", "from": "Andi", "to": "Habiburrochman"}, {"arrows": "to", "from": "Umar", "to": "Bagus"}, {"arrows": "to", "from": "Umar", "to": "Glendy"}, {"arrows": "to", "from": "Umar", "to": "Andre Eka"}, {"arrows": "to", "from": "Windi", "to": "Putri"}, {"arrows": "to", "from": "Windi", "to": "Febri"}, {"arrows": "to", "from": "Windi", "to": "Natun"}, {"arrows": "to", "from": "Glendy", "to": "Bagus"}, {"arrows": "to", "from": "Glendy", "to": "Umar"}, {"arrows": "to", "from": "Ariek", "to": "Akhyar"}, {"arrows": "to", "from": "Ariek", "to": "Ronggo"}, {"arrows": "to", "from": "Mahreza", "to": "Mishbahus"}, {"arrows": "to", "from": "Mahreza", "to": "Bagas"}, {"arrows": "to", "from": "Mahreza", "to": "Ali Ridho"}, {"arrows": "to", "from": "Rizky", "to": "Andre Eka"}, {"arrows": "to", "from": "Rizky", "to": "Fahmi"}, {"arrows": "to", "from": "Irfan", "to": "Rizka"}, {"arrows": "to", "from": "Irfan", "to": "Noval"}, {"arrows": "to", "from": "Niken", "to": "Hera"}, {"arrows": "to", "from": "Yusuf", "to": "Akhyar"}, {"arrows": "to", "from": "Yusuf", "to": "Ikbar"}, {"arrows": "to", "from": "Yusuf", "to": "Abid"}, {"arrows": "to", "from": "Ivada", "to": "Dila"}, {"arrows": "to", "from": "Ivada", "to": "Adi Prawono"}, {"arrows": "to", "from": "Yunus", "to": "Abdillah"}, {"arrows": "to", "from": "Yunus", "to": "Rifqi"}, {"arrows": "to", "from": "Yunus", "to": "Fahmi"}, {"arrows": "to", "from": "Sabil", "to": "Ronggo"}, {"arrows": "to", "from": "Sabil", "to": "Firmansyah"}, {"arrows": "to", "from": "Sabil", "to": "Hanafi"}, {"arrows": "to", "from": "Vania", "to": "Melly"}, {"arrows": "to", "from": "Vania", "to": "Revika"}, {"arrows": "to", "from": "Vania", "to": "Devi"}, {"arrows": "to", "from": "Satya", "to": "Farhan"}, {"arrows": "to", "from": "Satya", "to": "Fendi"}, {"arrows": "to", "from": "Putri", "to": "Febri"}, {"arrows": "to", "from": "Putri", "to": "Natun"}, {"arrows": "to", "from": "Putri", "to": "Windi"}, {"arrows": "to", "from": "Adi Prawono", "to": "Akbar"}, {"arrows": "to", "from": "Adi Prawono", "to": "Fais"}, {"arrows": "to", "from": "Ikbar", "to": "Noval"}, {"arrows": "to", "from": "Ikbar", "to": "Rere"}, {"arrows": "to", "from": "Faqih", "to": "Wafda"}, {"arrows": "to", "from": "Faqih", "to": "Farish"}, {"arrows": "to", "from": "Yasmien", "to": "Zulfa"}, {"arrows": "to", "from": "Yasmien", "to": "Riskina"}, {"arrows": "to", "from": "Lydia", "to": "Arul"}, {"arrows": "to", "from": "Lydia", "to": "Alifah"}, {"arrows": "to", "from": "Devi", "to": "Agus"}, {"arrows": "to", "from": "Devi", "to": "Vania"}, {"arrows": "to", "from": "Devi", "to": "Revika"}, {"arrows": "to", "from": "Tasya", "to": "Widiya"}, {"arrows": "to", "from": "Tasya", "to": "Malik"}, {"arrows": "to", "from": "Tasya", "to": "Adi Sahrul"}, {"arrows": "to", "from": "Wahyu Rohmatul", "to": "Aan"}, {"arrows": "to", "from": "Wahyu Rohmatul", "to": "Holis"}, {"arrows": "to", "from": "Wahyu Rohmatul", "to": "Lufthanza"}, {"arrows": "to", "from": "Bima", "to": "Yusron"}, {"arrows": "to", "from": "Bima", "to": "Noval"}, {"arrows": "to", "from": "Bima", "to": "Ikbar"}, {"arrows": "to", "from": "Ilyas", "to": "Adi Prawono"}, {"arrows": "to", "from": "Ilyas", "to": "Fais"}, {"arrows": "to", "from": "Ilyas", "to": "Rizky"}, {"arrows": "to", "from": "Alivian", "to": "Agus"}, {"arrows": "to", "from": "Alivian", "to": "Febrianu"}, {"arrows": "to", "from": "Winda", "to": "Zulfa"}, {"arrows": "to", "from": "Winda", "to": "Riskina"}, {"arrows": "to", "from": "Winda", "to": "Dila"}, {"arrows": "to", "from": "Arifin", "to": "Andreas"}, {"arrows": "to", "from": "Arifin", "to": "Dimas"}, {"arrows": "to", "from": "Balqis", "to": "Putri"}, {"arrows": "to", "from": "Balqis", "to": "Febri"}, {"arrows": "to", "from": "Balqis", "to": "Windi"}, {"arrows": "to", "from": "Nabhan", "to": "Wahyu Cahyanto"}, {"arrows": "to", "from": "Nabhan", "to": "Mahreza"}, {"arrows": "to", "from": "Nabhan", "to": "Mishbahus"}, {"arrows": "to", "from": "Yusron", "to": "Izzul"}, {"arrows": "to", "from": "Yusron", "to": "Frederico"}, {"arrows": "to", "from": "Yusron", "to": "Rafiq"}, {"arrows": "to", "from": "Fedi", "to": "Agus"}, {"arrows": "to", "from": "Fedi", "to": "Nadhif"}, {"arrows": "to", "from": "Fedi", "to": "Wildan"}, {"arrows": "to", "from": "Wahyu Cahyanto", "to": "Akhyar"}, {"arrows": "to", "from": "Wahyu Cahyanto", "to": "Riskina"}, {"arrows": "to", "from": "Wahyu Cahyanto", "to": "Zulfa"}, {"arrows": "to", "from": "Rifqi", "to": "Vemas"}, {"arrows": "to", "from": "Zulfa", "to": "Riskina"}, {"arrows": "to", "from": "Zulfa", "to": "Winda"}, {"arrows": "to", "from": "Zulfa", "to": "Yasmien"}, {"arrows": "to", "from": "Hanafi", "to": "Willy"}, {"arrows": "to", "from": "Hanafi", "to": "Faqih"}, {"arrows": "to", "from": "Hanafi", "to": "Zakaria"}, {"arrows": "to", "from": "Yudha", "to": "Alifah"}, {"arrows": "to", "from": "Yudha", "to": "Zakaria"}, {"arrows": "to", "from": "Yudha", "to": "Willy"}, {"arrows": "to", "from": "Auliya", "to": "Febi"}, {"arrows": "to", "from": "Auliya", "to": "Lia"}, {"arrows": "to", "from": "Auliya", "to": "Zakaria"}, {"arrows": "to", "from": "Abdillah", "to": "Yunus"}, {"arrows": "to", "from": "Abdillah", "to": "Rifqi"}, {"arrows": "to", "from": "Abdillah", "to": "Syaiful Ramadani"}, {"arrows": "to", "from": "Mishbahus", "to": "Wafda"}, {"arrows": "to", "from": "Mishbahus", "to": "Hendra"}, {"arrows": "to", "from": "Mishbahus", "to": "Bagas"}, {"arrows": "to", "from": "Lufthanza", "to": "Akhyar"}, {"arrows": "to", "from": "Lufthanza", "to": "Aan"}, {"arrows": "to", "from": "Rosyid", "to": "Ariek"}, {"arrows": "to", "from": "Rosyid", "to": "Alivian"}, {"arrows": "to", "from": "Aldy", "to": "Niken"}, {"arrows": "to", "from": "Aldy", "to": "Cici"}, {"arrows": "to", "from": "Natun", "to": "Putri"}, {"arrows": "to", "from": "Natun", "to": "Febri"}, {"arrows": "to", "from": "Natun", "to": "Windi"}, {"arrows": "to", "from": "Ahya", "to": "Ami"}, {"arrows": "to", "from": "Ahya", "to": "Niken"}, {"arrows": "to", "from": "Ahya", "to": "Lia"}, {"arrows": "to", "from": "Fentry", "to": "Lisda"}, {"arrows": "to", "from": "Fentry", "to": "Auliya"}, {"arrows": "to", "from": "Fentry", "to": "Juan"}, {"arrows": "to", "from": "Noval", "to": "Zakaria"}, {"arrows": "to", "from": "Noval", "to": "Irfan"}, {"arrows": "to", "from": "Oktaveian", "to": "Zakaria"}, {"arrows": "to", "from": "Oktaveian", "to": "Sabil"}, {"arrows": "to", "from": "Zarkasyi", "to": "Samsul"}, {"arrows": "to", "from": "Zarkasyi", "to": "Bintang"}, {"arrows": "to", "from": "Zarkasyi", "to": "Faqih"}, {"arrows": "to", "from": "Anandya", "to": "Helmia"}, {"arrows": "to", "from": "Anandya", "to": "Vicky"}, {"arrows": "to", "from": "Anandya", "to": "Billy"}, {"arrows": "to", "from": "Lia", "to": "Balqis"}, {"arrows": "to", "from": "Lia", "to": "Ahya"}, {"arrows": "to", "from": "Syaiful Ramadani", "to": "Vemas"}, {"arrows": "to", "from": "Syaiful Ramadani", "to": "Rifqi"}, {"arrows": "to", "from": "Syaiful Ramadani", "to": "Abdillah"}, {"arrows": "to", "from": "Syaiful Ramadani", "to": "Fahmi"}, {"arrows": "to", "from": "Syaiful Ramadani", "to": "Zarkasyi"}, {"arrows": "to", "from": "Syaiful Ramadani", "to": "Farhan"}, {"arrows": "to", "from": "Syaiful Ramadani", "to": "Bagus"}, {"arrows": "to", "from": "Syaiful Ramadani", "to": "Umar"}, {"arrows": "to", "from": "Ali Ridho", "to": "Mahreza"}, {"arrows": "to", "from": "Ali Ridho", "to": "Shafy"}, {"arrows": "to", "from": "Aan", "to": "Wahyu Rohmatul"}, {"arrows": "to", "from": "Aan", "to": "Holis"}, {"arrows": "to", "from": "Ami", "to": "Ahya"}, {"arrows": "to", "from": "Ami", "to": "Niken"}, {"arrows": "to", "from": "Elisa", "to": "Febi"}, {"arrows": "to", "from": "Elisa", "to": "Khalisa"}, {"arrows": "to", "from": "Melly", "to": "Vania"}, {"arrows": "to", "from": "Melly", "to": "Juan"}, {"arrows": "to", "from": "Melly", "to": "Fentry"}, {"arrows": "to", "from": "Juan", "to": "Samsul"}, {"arrows": "to", "from": "Juan", "to": "Zarkasyi"}, {"arrows": "to", "from": "Nico", "to": "Tofan"}, {"arrows": "to", "from": "Nico", "to": "Surya"}, {"arrows": "to", "from": "Rizka", "to": "Irfan"}, {"arrows": "to", "from": "Billy", "to": "Anandya"}, {"arrows": "to", "from": "Billy", "to": "Adri"}, {"arrows": "to", "from": "Hamizan", "to": "Malik"}, {"arrows": "to", "from": "Hamizan", "to": "Adi Sahrul"}, {"arrows": "to", "from": "Nadiah", "to": "Cici"}, {"arrows": "to", "from": "Nadiah", "to": "Devi"}, {"arrows": "to", "from": "Nadiah", "to": "Adi Prawono"}, {"arrows": "to", "from": "Febi", "to": "Elisa"}, {"arrows": "to", "from": "Febi", "to": "Khalisa"}, {"arrows": "to", "from": "Firmansyah", "to": "Iqbil"}, {"arrows": "to", "from": "Firmansyah", "to": "Yogi"}, {"arrows": "to", "from": "Ali", "to": "Malik"}, {"arrows": "to", "from": "Ali", "to": "Adi Sahrul"}, {"arrows": "to", "from": "Helmia", "to": "Vicky"}, {"arrows": "to", "from": "Helmia", "to": "Anandya"}, {"arrows": "to", "from": "Helmia", "to": "Hafidz"}, {"arrows": "to", "from": "Shafy", "to": "Tofan"}, {"arrows": "to", "from": "Shafy", "to": "Nico"}, {"arrows": "to", "from": "Shafy", "to": "Ulum"}, {"arrows": "to", "from": "Fais", "to": "Adi Prawono"}, {"arrows": "to", "from": "Fais", "to": "Akbar"}, {"arrows": "to", "from": "Ulum", "to": "Surya"}, {"arrows": "to", "from": "Cici", "to": "Nadiah"}, {"arrows": "to", "from": "Cici", "to": "Agus"}, {"arrows": "to", "from": "Fahmi", "to": "Rizky"}, {"arrows": "to", "from": "Fahmi", "to": "Yunus"}, {"arrows": "to", "from": "Fahmi", "to": "Abdillah"}, {"arrows": "to", "from": "Dimas", "to": "Ariek"}, {"arrows": "to", "from": "Dimas", "to": "Ronggo"}, {"arrows": "to", "from": "Andreas", "to": "Arifin"}, {"arrows": "to", "from": "Lisda", "to": "Fentry"}, {"arrows": "to", "from": "Lisda", "to": "Auliya"}, {"arrows": "to", "from": "Lisda", "to": "Melly"}, {"arrows": "to", "from": "Vemas", "to": "Abdillah"}, {"arrows": "to", "from": "Dina", "to": "Hera"}, {"arrows": "to", "from": "Dina", "to": "Rara"}, {"arrows": "to", "from": "Dina", "to": "Anandya"}, {"arrows": "to", "from": "Rere", "to": "Noval"}, {"arrows": "to", "from": "Rere", "to": "Ikbar"}, {"arrows": "to", "from": "Adri", "to": "Rosi"}, {"arrows": "to", "from": "Adri", "to": "Ramadani"}, {"arrows": "to", "from": "Rissa", "to": "Widiya"}, {"arrows": "to", "from": "Rissa", "to": "Ning"}, {"arrows": "to", "from": "Rissa", "to": "Vania"}, {"arrows": "to", "from": "Faisal", "to": "Fais"}, {"arrows": "to", "from": "Faisal", "to": "Farish"}, {"arrows": "to", "from": "Faisal", "to": "wafda"}, {"arrows": "to", "from": "Samsul", "to": "Juan"}, {"arrows": "to", "from": "Samsul", "to": "Bintang"}, {"arrows": "to", "from": "Samsul", "to": "Fendi"}, {"arrows": "to", "from": "Iqbil", "to": "Firmansyah"}, {"arrows": "to", "from": "Iqbil", "to": "Ikbar"}, {"arrows": "to", "from": "Adi Sahrul", "to": "Tasya"}, {"arrows": "to", "from": "Adi Sahrul", "to": "Malik"}, {"arrows": "to", "from": "Adi Sahrul", "to": "Ali"}, {"arrows": "to", "from": "Malik", "to": "Adi Sahrul"}, {"arrows": "to", "from": "Malik", "to": "Ali"}, {"arrows": "to", "from": "Malik", "to": "Tasya"}, {"arrows": "to", "from": "Hafidz", "to": "Febri"}, {"arrows": "to", "from": "Hafidz", "to": "Zarkasyi"}, {"arrows": "to", "from": "Hafidz", "to": "Windi"}, {"arrows": "to", "from": "Jizdan", "to": "Fajar"}, {"arrows": "to", "from": "Jizdan", "to": "Fahmi Fahrizi"}, {"arrows": "to", "from": "Jizdan", "to": "Danuarta"}, {"arrows": "to", "from": "Nadhif", "to": "Agus"}, {"arrows": "to", "from": "Nadhif", "to": "Alivian"}, {"arrows": "to", "from": "Abi", "to": "Erlangga"}, {"arrows": "to", "from": "Abi", "to": "Valent"}, {"arrows": "to", "from": "Erlangga", "to": "Desi"}, {"arrows": "to", "from": "Erlangga", "to": "Olifia"}, {"arrows": "to", "from": "Desi", "to": "Erlangga"}, {"arrows": "to", "from": "Desi", "to": "Olifia"}, {"arrows": "to", "from": "Frederico", "to": "Izzul"}, {"arrows": "to", "from": "Frederico", "to": "Yusron"}, {"arrows": "to", "from": "Fendi", "to": "Yudha"}, {"arrows": "to", "from": "Fendi", "to": "Juan"}, {"arrows": "to", "from": "Fendi", "to": "Bagus"}, {"arrows": "to", "from": "Riskina", "to": "Zulfa"}, {"arrows": "to", "from": "Riskina", "to": "Winda"}, {"arrows": "to", "from": "Riskina", "to": "Yasmien"}, {"arrows": "to", "from": "Olifia", "to": "Desi"}, {"arrows": "to", "from": "Olifia", "to": "Niken"}, {"arrows": "to", "from": "Olifia", "to": "Rosi"}, {"arrows": "to", "from": "Willy", "to": "Dila"}, {"arrows": "to", "from": "Willy", "to": "Hanafi"}, {"arrows": "to", "from": "Willy", "to": "Fais"}]);
-
-                  nodeColors = {};
-                  allNodes = nodes.get({ returnType: "Object" });
-                  for (nodeId in allNodes) {
-                    nodeColors[nodeId] = allNodes[nodeId].color;
-                  }
-                  allEdges = edges.get({ returnType: "Object" });
-                  // adding nodes and edges to the graph
-                  data = {nodes: nodes, edges: edges};
-
-                  var options = {"interaction": {"navigationButtons": true, "keyboard": true}, "physics": {"enabled": true}};
-
-                  
-
-
-                  
-
-                  network = new vis.Network(container, data, options);
-
-                  
-
-                  
-
-                  
-
-
-                  
-                      network.on("stabilizationProgress", function(params) {
-                          document.getElementById('loadingBar').removeAttribute("style");
-                          var maxWidth = 496;
-                          var minWidth = 20;
-                          var widthFactor = params.iterations/params.total;
-                          var width = Math.max(minWidth,maxWidth * widthFactor);
-                          document.getElementById('bar').style.width = width + 'px';
-                          document.getElementById('text').innerHTML = Math.round(widthFactor*100) + '%';
-                      });
-                      network.once("stabilizationIterationsDone", function() {
-                          document.getElementById('text').innerHTML = '100%';
-                          document.getElementById('bar').style.width = '496px';
-                          document.getElementById('loadingBar').style.opacity = 0;
-                          // really clean the dom element
-                          setTimeout(function () {document.getElementById('loadingBar').style.display = 'none';}, 500);
-                      });
-                  
-
-                  return network;
-
-              }
-              drawGraph();
-        </script>
-    </body>
 </html>
